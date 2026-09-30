@@ -339,9 +339,17 @@ export default function HomePage() {
       </section>
 
       <div className="max-w-270 mx-auto px-7">
-        <footer className="border-t border-(--line) py-7 text-(--muted) text-[13px] flex justify-between">
+        <footer className="border-t border-(--line) py-7 text-(--muted) text-[13px] flex flex-wrap items-center justify-between gap-3">
           <span>© 2026 LicensedRight</span>
-          <span>Not legal advice</span>
+          <div className="flex items-center gap-5">
+            <Link href="/terms" className="hover:text-(--ink) transition-colors">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:text-(--ink) transition-colors">
+              Privacy
+            </Link>
+            <span>Not legal advice</span>
+          </div>
         </footer>
       </div>
     </main>
