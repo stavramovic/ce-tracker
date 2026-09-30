@@ -17,8 +17,10 @@ const THRESHOLDS: { days: number; type: string }[] = [
 
 function daysUntil(dateStr: string): number {
   const today = new Date();
+  const todayUTC = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
   const target = new Date(dateStr);
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const targetUTC = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
+  return Math.round((targetUTC - todayUTC) / (1000 * 60 * 60 * 24));
 }
 
 export async function GET(request: Request) {
