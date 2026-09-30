@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calculateCompliance, type ComplianceStatus } from "@/lib/ce-calculator";
+import { getItemUrgency, ITEM_TYPE_LABELS } from "@/lib/compliance-status";
 import SignOutButton from "./sign-out-button";
 
 type License = {
@@ -70,6 +71,13 @@ export default async function DashboardPage() {
       return { license, result };
     })
   );
+
+  const { data: complianceItems } = await supabase
+    .from("compliance_items")
+    .select("id, item_type, label, state_code, expiration_date, status")
+    .order("expiration_date", { ascending: true });
+
+  const items = complianceItems ?? [];
 
   return (
     <main className="min-h-screen bg-(--paper)">
@@ -167,6 +175,73 @@ export default async function DashboardPage() {
                         ? `Expires in ${result.daysUntilExpiration} days`
                         : `Expired ${Math.abs(result.daysUntilExpiration)} days ago`
                       : new Date(license.expiration_date).toLocaleDateString()}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mb-8 mt-14">
+          <div>
+            <h2 className="font-serif-brand text-[22px] font-semibold">
+              E&O insurance & carrier appointments
+            </h2>
+            <p className="text-(--muted) text-[15px] mt-1">
+              {items.length === 0
+                ? "Nothing tracked yet — add your E&O policy or a carrier appointment."
+                : `Tracking ${items.length} item${items.length === 1 ? "" : "s"}.`}
+            </p>
+          </div>
+          <Link
+            href="/dashboard/compliance/new"
+            className="rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+          >
+            + Add item
+          </Link>
+        </div>
+
+        {items.length === 0 ? (
+          <div className="bg-(--card) border border-(--line) rounded-[10px] p-12 text-center">
+            <p className="text-(--muted) text-[15px]">
+              No E&O policies or carrier appointments tracked yet.
+            </p>
+            <Link
+              href="/dashboard/compliance/new"
+              className="inline-block mt-4 rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity"
+            >
+              Add your first item
+            </Link>
+          </div>
+        ) : (
+          <div className="bg-(--card) border border-(--line) rounded-[10px] overflow-hidden">
+            {items.map((item, i) => {
+              const urgency = getItemUrgency(item.expiration_date);
+              return (
+                <Link
+                  key={item.id}
+                  href={`/dashboard/compliance/${item.id}`}
+                  className={`flex items-center justify-between px-4.5 py-3.5 hover:bg-(--paper2) transition-colors ${
+                    i > 0 ? "border-t border-(--line)" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="w-2 h-2 rounded-full flex-none"
+                      style={{ background: urgency.color }}
+                    />
+                    <span className="font-semibold text-[14.5px]">
+                      {ITEM_TYPE_LABELS[item.item_type] ?? item.item_type}
+                      {item.state_code ? ` — ${item.state_code}` : ""}
+                    </span>
+                    <span className="text-[12.5px] text-(--muted)">
+                      {item.label}
+                    </span>
+                  </div>
+                  <div className="text-[13px] text-(--muted) text-right whitespace-nowrap">
+                    {urgency.daysUntilExpiration >= 0
+                      ? `Expires in ${urgency.daysUntilExpiration} days`
+                      : `Expired ${Math.abs(urgency.daysUntilExpiration)} days ago`}
                   </div>
                 </Link>
               );
