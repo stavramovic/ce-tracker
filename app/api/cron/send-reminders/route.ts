@@ -24,8 +24,6 @@ function daysUntil(dateStr: string): number {
 }
 
 export async function GET(request: Request) {
-  // Zaštita: samo Vercel Cron (koji šalje ovaj header) sme da pozove ovo,
-  // ne bilo ko ko pogodi URL.
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -42,15 +40,12 @@ export async function GET(request: Request) {
   }
 
   const results: { license_id: string; reminder_type: string; status: string }[] = [];
-  const debugDays: number[] = [];
 
   for (const license of licenses ?? []) {
     const days = daysUntil(license.expiration_date);
-    debugDays.push(days);
     const threshold = THRESHOLDS.find((t) => t.days === days);
-    if (!threshold) continue; // nije tačno na jedan od naših pragova danas
+    if (!threshold) continue;
 
-    // Da li je već poslat ovaj tip podsetnika za ovu licencu?
     const { data: existing } = await supabase
       .from("license_reminders_log")
       .select("id")
@@ -58,9 +53,8 @@ export async function GET(request: Request) {
       .eq("reminder_type", threshold.type)
       .maybeSingle();
 
-    if (existing) continue; // već poslato, preskoči
+    if (existing) continue;
 
-    // Nađi email korisnika preko admin auth API-ja
     const { data: userData } = await supabase.auth.admin.getUserById(license.user_id);
     const email = userData?.user?.email;
     if (!email) continue;
@@ -90,5 +84,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ checked: licenses?.length ?? 0, results, debugDays });
+  return NextResponse.json({ checked: licenses?.length ?? 0, results });
 }
