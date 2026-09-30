@@ -42,9 +42,11 @@ export async function GET(request: Request) {
   }
 
   const results: { license_id: string; reminder_type: string; status: string }[] = [];
+  const debugDays: number[] = [];
 
   for (const license of licenses ?? []) {
     const days = daysUntil(license.expiration_date);
+    debugDays.push(days);
     const threshold = THRESHOLDS.find((t) => t.days === days);
     if (!threshold) continue; // nije tačno na jedan od naših pragova danas
 
@@ -88,5 +90,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ checked: licenses?.length ?? 0, results });
+  return NextResponse.json({ checked: licenses?.length ?? 0, results, debugDays });
 }
