@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calculateCompliance, type ComplianceStatus } from "@/lib/ce-calculator";
 import { getItemUrgency, ITEM_TYPE_LABELS } from "@/lib/compliance-status";
+import { formatMissingSpecial } from "@/lib/special-requirement-labels";
 import SignOutButton from "./sign-out-button";
 
 type License = {
@@ -165,7 +166,7 @@ export default async function DashboardPage() {
                         {result.ethicsHoursCompleted}/{result.ethicsHoursRequired}
                         h ethics
                         {result.missingSpecial.length > 0 &&
-                          ` · missing ${result.missingSpecial.join(", ")}`}
+                          ` · missing ${formatMissingSpecial(result.missingSpecial)}`}
                       </span>
                     )}
                   </div>

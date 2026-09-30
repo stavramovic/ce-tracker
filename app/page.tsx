@@ -1,7 +1,13 @@
 // app/page.tsx
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <main>
       <header className="sticky top-0 z-10 bg-(--paper)/95 backdrop-blur-sm border-b border-(--line)">
@@ -36,10 +42,10 @@ export default function HomePage() {
               State requirements
             </Link>
             <Link
-              href="/login"
+              href={user ? "/dashboard" : "/login"}
               className="bg-(--ink) text-(--paper) px-4.5 py-2.5 rounded-md text-sm font-medium whitespace-nowrap hover:opacity-90 transition-opacity"
             >
-              Create account
+              {user ? "Go to dashboard" : "Create account"}
             </Link>
           </div>
         </nav>
@@ -62,10 +68,10 @@ export default function HomePage() {
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                href="/login"
+                href={user ? "/dashboard" : "/login"}
                 className="bg-(--ink) text-(--paper) px-4.5 py-2.5 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                Start free
+                {user ? "Go to dashboard" : "Start free"}
               </Link>
               <span className="text-[13px] text-(--muted)">
                 Free for your first license
@@ -323,14 +329,14 @@ export default function HomePage() {
                   ))}
                 </ul>
                 <Link
-                  href="/login"
+                  href={user ? "/dashboard" : "/login"}
                   className={`inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-opacity hover:opacity-90 ${
                     plan.featured
                       ? "bg-(--ink) text-(--paper)"
                       : "bg-transparent text-(--ink) border border-(--line)"
                   }`}
                 >
-                  Choose
+                  {user ? "Go to dashboard" : "Choose"}
                 </Link>
               </div>
             ))}
