@@ -25,8 +25,18 @@ export async function GET(request: Request) {
   // Zaštita: samo Vercel Cron (koji šalje ovaj header) sme da pozove ovo,
   // ne bilo ko ko pogodi URL.
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const expected = `Bearer ${process.env.CRON_SECRET}`;
+  if (authHeader !== expected) {
+    return NextResponse.json({
+      error: "Unauthorized",
+      debug: {
+        receivedLength: authHeader?.length ?? 0,
+        expectedLength: expected.length,
+        receivedTail: authHeader?.slice(-6) ?? null,
+        expectedTail: expected.slice(-6),
+        secretIsSet: !!process.env.CRON_SECRET,
+      },
+    }, { status: 401 });
   }
 
   const supabase = createAdminClient();
