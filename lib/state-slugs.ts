@@ -33,4 +33,9 @@ export const STATE_NAMES: Record<string, string> = {
   GA: "Georgia",
   NC: "North Carolina",
   WA: "Washington",
+  MI: "Michigan",
+  NJ: "New Jersey",
+  VA: "Virginia",
+  AZ: "Arizona",
+  TN: "Tennessee",
 };
