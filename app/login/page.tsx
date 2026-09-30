@@ -1,0 +1,116 @@
+// app/login/page.tsx
+"use client";
+
+import { useState, type SyntheticEvent } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
+    "idle"
+  );
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("sending");
+    setErrorMessage("");
+
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setStatus("error");
+      setErrorMessage(error.message);
+      return;
+    }
+
+    setStatus("sent");
+  }
+
+  return (
+    <main className="min-h-screen bg-(--paper) flex flex-col">
+      {/* Sitan header sa brendom, konzistentan sa landing page-om */}
+      <header className="w-full">
+        <div className="max-w-270 mx-auto px-7 py-6">
+          <Link
+            href="/"
+            className="font-serif-brand font-bold text-[19px] flex items-center gap-2 w-fit"
+          >
+            <span
+              className="w-4 h-4 rounded-[3px]"
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--amber), var(--ink) 130%)",
+              }}
+            />
+            LicensedRight
+          </Link>
+        </div>
+      </header>
+
+      {/* Login kartica, centrirana */}
+      <div className="flex-1 flex items-center justify-center px-4">
+        <div className="w-full max-w-100 bg-(--card) border border-(--line) rounded-[10px] shadow-[0_24px_48px_-24px_rgba(22,35,46,0.18)] p-8">
+          {status === "sent" ? (
+            <>
+              <h1 className="font-serif-brand text-[26px] font-semibold leading-tight">
+                Check your email
+              </h1>
+              <p className="mt-3 text-[15px] text-(--muted) leading-relaxed">
+                We sent a login link to{" "}
+                <strong className="text-(--ink)">{email}</strong>. Click
+                it to sign in — the link is valid for 1 hour.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-[13px] font-semibold text-(--amber) tracking-wide mb-2">
+                WELCOME BACK
+              </p>
+              <h1 className="font-serif-brand text-[26px] font-semibold leading-tight">
+                Sign in
+              </h1>
+              <p className="mt-2 text-[15px] text-(--muted)">
+                Enter your email and we&apos;ll send you a login link. No
+                password to remember.
+              </p>
+
+              <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@email.com"
+                  className="rounded-md border border-(--line) px-3.5 py-2.5 text-[14.5px] text-(--ink) outline-none focus:border-(--ink) transition-colors"
+                />
+
+                <button
+                  type="submit"
+                  disabled={status === "sending"}
+                  className="rounded-md bg-(--ink) text-(--paper) px-3.5 py-2.5 text-[14.5px] font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
+                >
+                  {status === "sending" ? "Sending..." : "Send login link"}
+                </button>
+
+                {status === "error" && (
+                  <p className="text-[13.5px] text-(--red)">
+                    {errorMessage}
+                  </p>
+                )}
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
