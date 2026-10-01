@@ -112,6 +112,20 @@ export async function inviteMember(formData: FormData) {
   revalidatePath("/dashboard/agency");
 }
 
+// Magic link mejl uvek vodi na /dashboard (next param u Supabase template-u
+// je statican), pa korisnik koji se prvi put prijavljuje preko invite linka
+// cesto ne zavrsi nazad na /invite/[token] da klikne "Accept invite". Zato
+// se ovo zove pri svakom ucitavanju dashboard-a: ako postoji neprihvacen
+// invite poslat na mejl ulogovanog korisnika, tiho ga prihvata.
+export async function autoAcceptPendingInvites(userId: string, email: string) {
+  const admin = createAdminClient();
+  await admin
+    .from("agency_members")
+    .update({ user_id: userId, joined_at: new Date().toISOString() })
+    .is("joined_at", null)
+    .ilike("email", email);
+}
+
 export async function removeMember(memberId: string) {
   const supabase = await createClient();
   const {

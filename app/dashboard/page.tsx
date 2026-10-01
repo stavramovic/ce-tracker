@@ -6,6 +6,7 @@ import { calculateCompliance, type ComplianceStatus } from "@/lib/ce-calculator"
 import { getItemUrgency, ITEM_TYPE_LABELS } from "@/lib/compliance-status";
 import { formatMissingSpecial } from "@/lib/special-requirement-labels";
 import SignOutButton from "./sign-out-button";
+import { autoAcceptPendingInvites } from "./agency/actions";
 
 type License = {
   id: string;
@@ -34,6 +35,14 @@ export default async function DashboardPage() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (user.email) {
+    try {
+      await autoAcceptPendingInvites(user.id, user.email);
+    } catch {
+      // best-effort, ne sme da obori dashboard ako ovo puca
+    }
   }
 
   const { data: licenses } = await supabase
