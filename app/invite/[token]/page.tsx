@@ -113,7 +113,7 @@ export default async function InvitePage({
                 )
               ) : (
                 <Link
-                  href={`/login?next=/invite/${token}`}
+                  href={`/login?next=/invite/${token}&email=${encodeURIComponent(member.email)}`}
                   className="inline-block mt-5 rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity"
                 >
                   Sign in to accept

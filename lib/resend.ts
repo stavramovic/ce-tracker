@@ -18,8 +18,9 @@ export async function sendAgencyInviteEmail(params: {
   to: string;
   agencyName: string;
   inviteUrl: string;
+  fallbackUrl?: string;
 }) {
-  const { to, agencyName, inviteUrl } = params;
+  const { to, agencyName, inviteUrl, fallbackUrl } = params;
 
   return resend.emails.send({
     from: FROM_EMAIL,
@@ -58,6 +59,11 @@ export async function sendAgencyInviteEmail(params: {
             <td style="padding:0 32px 32px 32px; border-top:1px solid #D6D9D0; padding-top:20px;">
               <p style="font-size:12.5px; line-height:1.6; color:#5B6670; margin:0;">
                 If you weren't expecting this, you can safely ignore this email.
+                ${
+                  fallbackUrl
+                    ? ` If the button above has expired, <a href="${fallbackUrl}" style="color:#16232E;">use this link instead</a>.`
+                    : ""
+                }
               </p>
             </td>
           </tr>

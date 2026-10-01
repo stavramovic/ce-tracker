@@ -103,10 +103,30 @@ export async function inviteMember(formData: FormData) {
     );
   }
 
+  const fallbackUrl = `${SITE_URL}/invite/${inviteToken}`;
+
+  // Umesto da teramo pozvanu osobu da prvo otvori /invite stranicu pa onda
+  // ide na /login i trazi DRUGI mejl za magic link, odmah generisemo pravi
+  // login token za tacno taj mejl i ugradjujemo ga u OVAJ mejl. Jedan klik:
+  // uloguje se i (preko autoAcceptPendingInvites na /dashboard) odmah se
+  // pridruzi agenciji. Link vazi koliko i obican magic link (podesavanje
+  // "OTP expiry" u Supabase-u, podrazumevano 1h) - zato fallbackUrl ide u
+  // mejl kao rezervna opcija ako istekne.
+  let confirmUrl = fallbackUrl;
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: "magiclink",
+    email,
+  });
+
+  if (!linkError && linkData?.properties?.hashed_token) {
+    confirmUrl = `${SITE_URL}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=magiclink&next=/dashboard`;
+  }
+
   await sendAgencyInviteEmail({
     to: email,
     agencyName: agency.name,
-    inviteUrl: `${SITE_URL}/invite/${inviteToken}`,
+    inviteUrl: confirmUrl,
+    fallbackUrl,
   });
 
   revalidatePath("/dashboard/agency");
