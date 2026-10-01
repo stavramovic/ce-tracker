@@ -112,7 +112,7 @@ export default async function DashboardPage() {
             </h1>
             <p className="text-(--muted) text-[15px] mt-1">
               {rows.length === 0
-                ? "No licenses yet — add your first one to get started."
+                ? "No licenses yet. Add your first one to get started."
                 : `Tracking ${rows.length} license${rows.length === 1 ? "" : "s"}.`}
             </p>
           </div>
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
                       style={{ background: status?.color ?? "var(--muted)" }}
                     />
                     <span className="font-semibold text-[14.5px]">
-                      {license.state_code} — {license.license_type}
+                      {license.state_code} · {license.license_type}
                     </span>
                     <span className="text-[12.5px] text-(--muted)">
                       {status?.label ?? "No rules on file"}
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
             </h2>
             <p className="text-(--muted) text-[15px] mt-1">
               {items.length === 0
-                ? "Nothing tracked yet — add your E&O policy or a carrier appointment."
+                ? "Nothing tracked yet. Add your E&O policy or a carrier appointment."
                 : `Tracking ${items.length} item${items.length === 1 ? "" : "s"}.`}
             </p>
           </div>
@@ -233,7 +233,7 @@ export default async function DashboardPage() {
                     />
                     <span className="font-semibold text-[14.5px]">
                       {ITEM_TYPE_LABELS[item.item_type] ?? item.item_type}
-                      {item.state_code ? ` — ${item.state_code}` : ""}
+                      {item.state_code ? ` · ${item.state_code}` : ""}
                     </span>
                     <span className="text-[12.5px] text-(--muted)">
                       {item.label}

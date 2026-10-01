@@ -2,7 +2,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy — LicensedRight",
+  title: "Privacy Policy | LicensedRight",
   description: "Privacy Policy for LicensedRight.",
 };
 
@@ -106,15 +106,15 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-5 space-y-1.5 mt-3">
               <li>
-                <strong>Supabase</strong> — hosts our database and handles
+                <strong>Supabase</strong>: hosts our database and handles
                 authentication.
               </li>
               <li>
-                <strong>Resend</strong> — delivers our transactional email
+                <strong>Resend</strong>: delivers our transactional email
                 reminders.
               </li>
               <li>
-                <strong>Vercel</strong> — hosts the application itself.
+                <strong>Vercel</strong>: hosts the application itself.
               </li>
             </ul>
             <p className="mt-3">

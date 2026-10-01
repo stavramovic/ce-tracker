@@ -84,7 +84,7 @@ export default async function LicenseDetailPage({
 
       <div className="max-w-180 mx-auto px-7 py-10">
         <h1 className="font-serif-brand text-[28px] font-semibold">
-          {license.state_code} — {license.license_type}
+          {license.state_code} · {license.license_type}
         </h1>
         <p className="text-(--muted) text-[15px] mt-1">
           Expires {new Date(license.expiration_date).toLocaleDateString()}
@@ -94,7 +94,7 @@ export default async function LicenseDetailPage({
           <div className="mt-6 bg-(--card) border border-(--line) rounded-[10px] p-5">
             <p className="text-[14px] text-(--red)">
               No state rules found for {license.state_code} /{" "}
-              {license.license_type} yet — add a row to state_rules to enable
+              {license.license_type} yet. Add a row to state_rules to enable
               compliance tracking for this license.
             </p>
           </div>
@@ -235,7 +235,7 @@ export default async function LicenseDetailPage({
                 >
                   <div>
                     <span className="text-[14px] font-medium">
-                      {c.hours}h — {c.category}
+                      {c.hours}h · {c.category}
                     </span>
                     {c.course_name && (
                       <span className="text-[13px] text-(--muted) ml-2">

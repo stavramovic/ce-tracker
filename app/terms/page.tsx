@@ -2,7 +2,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms of Service — LicensedRight",
+  title: "Terms of Service | LicensedRight",
   description: "Terms of Service for LicensedRight.",
 };
 
@@ -59,7 +59,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
-              2. What LicensedRight is — and isn&apos;t
+              2. What LicensedRight is (and isn&apos;t)
             </h2>
             <p>
               LicensedRight is a tracking tool that helps independent
@@ -120,7 +120,7 @@ export default function TermsPage() {
               5. Acceptable use
             </h2>
             <p>
-              You agree not to misuse the service — including attempting to
+              You agree not to misuse the service, including attempting to
               access other users&apos; data, disrupting the service,
               scraping it at scale, or using it for any unlawful purpose.
             </p>

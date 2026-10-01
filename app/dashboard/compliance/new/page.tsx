@@ -55,7 +55,7 @@ export default function NewComplianceItemPage() {
 
           <div>
             <label className="block text-[13.5px] font-medium mb-1.5">
-              State (optional — leave blank if it applies nationwide)
+              State (optional, leave blank if it applies nationwide)
             </label>
             <select
               name="state_code"

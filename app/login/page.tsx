@@ -67,7 +67,7 @@ export default function LoginPage() {
               <p className="mt-3 text-[15px] text-(--muted) leading-relaxed">
                 We sent a login link to{" "}
                 <strong className="text-(--ink)">{email}</strong>. Click
-                it to sign in — the link is valid for 1 hour.
+                it to sign in. The link is valid for 1 hour.
               </p>
             </>
           ) : (

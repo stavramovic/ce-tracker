@@ -11,7 +11,7 @@ import { licenseTypeToSlug, STATE_NAMES } from "@/lib/state-slugs";
 export const metadata: Metadata = {
   title: "Insurance License CE Requirements by State | LicensedRight",
   description:
-    "Continuing education hours, ethics requirements, and renewal rules for insurance producer licenses — by state and license type.",
+    "Continuing education hours, ethics requirements, and renewal rules for insurance producer licenses, by state and license type.",
 };
 
 type RuleRow = {

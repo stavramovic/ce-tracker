@@ -16,7 +16,7 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "LicensedRight — one dashboard for every state license",
+  title: "LicensedRight: one dashboard for every state license",
   description: "Track CE compliance across every state license in one place.",
   verification: {
     google: "bkxMM_wvRrSBeQtxt_z8uTJZS9ZoUi9d_bnLLidMoRM",

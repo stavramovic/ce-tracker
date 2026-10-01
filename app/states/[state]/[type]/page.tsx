@@ -92,7 +92,7 @@ export default async function StateTypePage({ params }: Props) {
 
       <div className="max-w-180 mx-auto px-7 py-12">
         <h1 className="font-serif-brand text-[32px] font-semibold leading-tight">
-          {stateName} {rule.license_type} insurance license — CE requirements
+          {stateName} {rule.license_type} insurance license: CE requirements
         </h1>
 
         <div className="mt-6 bg-(--card) border border-(--line) rounded-xl p-6 grid grid-cols-2 sm:grid-cols-4 gap-5">
@@ -162,8 +162,8 @@ export default async function StateTypePage({ params }: Props) {
             "not on file"
           )}
           {rule.last_verified_at
-            ? ` — last verified ${new Date(rule.last_verified_at).toLocaleDateString()}`
-            : " — verify with your state's Department of Insurance before relying on this for renewal."}
+            ? `, last verified ${new Date(rule.last_verified_at).toLocaleDateString()}`
+            : ", verify with your state's Department of Insurance before relying on this for renewal."}
           . This page is informational and not legal advice.
         </p>
       </div>

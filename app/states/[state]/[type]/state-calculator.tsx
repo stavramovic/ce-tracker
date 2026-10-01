@@ -43,7 +43,7 @@ export default function StateCalculator({ rule }: { rule: StateRule }) {
         How many hours do you still need?
       </h2>
       <p className="mt-1.5 text-[14px] text-(--muted)">
-        Enter what you&apos;ve completed so far — no account needed.
+        Enter what you&apos;ve completed so far; no account needed.
       </p>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
@@ -181,7 +181,7 @@ export default function StateCalculator({ rule }: { rule: StateRule }) {
         <div className="mt-5 pt-5 border-t border-(--line)">
           {result.isCompliant ? (
             <p className="text-[15px] font-medium" style={{ color: "var(--green)" }}>
-              You&apos;re fully compliant — nothing left to complete.
+              You&apos;re fully compliant; nothing left to complete.
             </p>
           ) : (
             <div className="flex flex-col gap-1.5">
