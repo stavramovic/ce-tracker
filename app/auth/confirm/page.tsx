@@ -28,7 +28,7 @@ export default async function ConfirmPage({
       {/* Isti header bar kao login/home/dashboard (max-w-270, px-7, py-5) da
           ne bi bilo skoka u visini/širini pri prelasku između stranica. */}
       <header className="w-full">
-        <div className="max-w-270 mx-auto px-7 py-5">
+        <div className="max-w-270 mx-auto px-7 py-5 min-h-20 flex items-center">
           <Link
             href="/"
             className="font-serif-brand font-bold text-[19px] flex items-center gap-2 w-fit"

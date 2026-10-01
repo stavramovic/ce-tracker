@@ -39,7 +39,7 @@ export default function LoginPage() {
     <main className="min-h-screen bg-(--paper) flex flex-col">
       {/* Sitan header sa brendom, konzistentan sa landing page-om */}
       <header className="w-full">
-        <div className="max-w-270 mx-auto px-7 py-5">
+        <div className="max-w-270 mx-auto px-7 py-5 min-h-20 flex items-center">
           <Link
             href="/"
             className="font-serif-brand font-bold text-[19px] flex items-center gap-2 w-fit"

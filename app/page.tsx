@@ -11,7 +11,7 @@ export default async function HomePage() {
   return (
     <main>
       <header className="sticky top-0 z-10 bg-(--paper)/95 backdrop-blur-sm border-b border-(--line)">
-        <nav className="max-w-270 mx-auto px-7 flex justify-between items-center py-5">
+        <nav className="max-w-270 mx-auto px-7 flex justify-between items-center py-5 min-h-20">
           <div className="font-serif-brand font-bold text-[19px] flex items-center gap-2">
             <span
               className="w-4 h-4 rounded-md"

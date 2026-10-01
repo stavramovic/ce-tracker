@@ -10,13 +10,13 @@ export default function PrivacyPage() {
   return (
     <main className="min-h-screen bg-(--paper)">
       <header className="border-b border-(--line)">
-        <div className="max-w-180 mx-auto px-7 py-5">
+        <div className="max-w-180 mx-auto px-7 py-5 min-h-20 flex items-center">
           <Link
             href="/"
             className="font-serif-brand font-bold text-[19px] flex items-center gap-2"
           >
             <span
-              className="w-4 h-4 rounded-[3px]"
+              className="w-4 h-4 rounded-md"
               style={{
                 background:
                   "linear-gradient(135deg, var(--amber), var(--ink) 130%)",
