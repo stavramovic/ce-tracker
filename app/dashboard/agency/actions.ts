@@ -119,7 +119,13 @@ export async function inviteMember(formData: FormData) {
   });
 
   if (!linkError && linkData?.properties?.hashed_token) {
-    confirmUrl = `${SITE_URL}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=magiclink&next=/dashboard`;
+    // Supabase zna da vrati DRUGACIJI stvarni tip verifikacije od onog koji
+    // trazimo (npr. za sasvim nov mejl generateLink({type:"magiclink"})
+    // interno kreira nalog i stvarna verifikacija ide kao "signup", ne
+    // "magiclink") - zato se type MORA uzeti iz verification_type u
+    // odgovoru, ne hardkodovati, inace verifyOtp puca na /auth/confirm.
+    const verificationType = linkData.properties.verification_type ?? "magiclink";
+    confirmUrl = `${SITE_URL}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=${verificationType}&next=/dashboard`;
   }
 
   await sendAgencyInviteEmail({
