@@ -99,6 +99,12 @@ export default async function DashboardPage() {
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-[13.5px] text-(--muted)">{user.email}</span>
+            <Link
+              href="/dashboard/settings"
+              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+            >
+              Settings
+            </Link>
             <SignOutButton />
           </div>
         </div>

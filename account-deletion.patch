@@ -1,0 +1,189 @@
+diff --git a/app/dashboard/page.tsx b/app/dashboard/page.tsx
+index c52133c..d243f56 100644
+--- a/app/dashboard/page.tsx
++++ b/app/dashboard/page.tsx
+@@ -99,6 +99,12 @@ export default async function DashboardPage() {
+           </Link>
+           <div className="flex items-center gap-4">
+             <span className="text-[13.5px] text-(--muted)">{user.email}</span>
++            <Link
++              href="/dashboard/settings"
++              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
++            >
++              Settings
++            </Link>
+             <SignOutButton />
+           </div>
+         </div>
+diff --git a/app/dashboard/settings/actions.ts b/app/dashboard/settings/actions.ts
+new file mode 100644
+index 0000000..ab7f30c
+--- /dev/null
++++ b/app/dashboard/settings/actions.ts
+@@ -0,0 +1,50 @@
++// app/dashboard/settings/actions.ts
++"use server";
++
++import { redirect } from "next/navigation";
++import { createClient } from "@/lib/supabase/server";
++import { createAdminClient } from "@/lib/supabase/admin";
++
++export async function deleteAccountAction() {
++  const supabase = await createClient();
++  const {
++    data: { user },
++  } = await supabase.auth.getUser();
++  if (!user) redirect("/login");
++
++  const admin = createAdminClient();
++
++  // Brisanje mora ići u ovom redosledu zbog FK veza ka auth.users i
++  // licenses koje nemaju ON DELETE CASCADE (isti problem na koji smo
++  // naleteli dok smo ručno brisali test nalog preko SQL-a).
++  const { data: licenses } = await admin
++    .from("licenses")
++    .select("id")
++    .eq("user_id", user.id);
++
++  const licenseIds = (licenses ?? []).map((l) => l.id as string);
++
++  if (licenseIds.length > 0) {
++    await admin.from("license_reminders_log").delete().in("license_id", licenseIds);
++    await admin.from("ce_credits").delete().in("license_id", licenseIds);
++  }
++
++  await admin.from("licenses").delete().eq("user_id", user.id);
++  await admin.from("compliance_items").delete().eq("user_id", user.id);
++
++  // profiles tabela možda ne postoji za svaki nalog (npr. kreiran pre nego
++  // što je tabela dodata) - ne rušimo celu akciju zbog toga.
++  try {
++    await admin.from("profiles").delete().eq("id", user.id);
++  } catch {
++    // ignorišemo - nije kritično ako profiles red ne postoji
++  }
++
++  const { error } = await admin.auth.admin.deleteUser(user.id);
++  if (error) {
++    throw new Error(error.message);
++  }
++
++  await supabase.auth.signOut();
++  redirect("/");
++}
+diff --git a/app/dashboard/settings/delete-account-form.tsx b/app/dashboard/settings/delete-account-form.tsx
+new file mode 100644
+index 0000000..7af1355
+--- /dev/null
++++ b/app/dashboard/settings/delete-account-form.tsx
+@@ -0,0 +1,33 @@
++// app/dashboard/settings/delete-account-form.tsx
++"use client";
++
++import { useState } from "react";
++import { deleteAccountAction } from "./actions";
++
++export default function DeleteAccountForm({ email }: { email: string }) {
++  const [confirmText, setConfirmText] = useState("");
++  const canDelete = confirmText === "DELETE";
++
++  return (
++    <form action={deleteAccountAction} className="mt-5 flex flex-col gap-3">
++      <label className="text-[13px] font-medium">
++        Type <span className="font-semibold">DELETE</span> to confirm
++      </label>
++      <input
++        type="text"
++        value={confirmText}
++        onChange={(e) => setConfirmText(e.target.value)}
++        placeholder="DELETE"
++        className="rounded-md border border-(--line) px-3.5 py-2.5 text-[14.5px] outline-none focus:border-(--red) transition-colors bg-(--paper) max-w-60"
++      />
++      <button
++        type="submit"
++        disabled={!canDelete}
++        className="rounded-md px-3.5 py-2.5 text-[14.5px] font-medium w-fit transition-opacity disabled:opacity-40 hover:opacity-90"
++        style={{ background: "var(--red)", color: "var(--paper)" }}
++      >
++        {`Permanently delete ${email}`}
++      </button>
++    </form>
++  );
++}
+diff --git a/app/dashboard/settings/page.tsx b/app/dashboard/settings/page.tsx
+new file mode 100644
+index 0000000..b09a7d3
+--- /dev/null
++++ b/app/dashboard/settings/page.tsx
+@@ -0,0 +1,71 @@
++// app/dashboard/settings/page.tsx
++import Link from "next/link";
++import { redirect } from "next/navigation";
++import { createClient } from "@/lib/supabase/server";
++import SignOutButton from "../sign-out-button";
++import DeleteAccountForm from "./delete-account-form";
++
++export default async function SettingsPage() {
++  const supabase = await createClient();
++  const {
++    data: { user },
++  } = await supabase.auth.getUser();
++
++  if (!user) {
++    redirect("/login");
++  }
++
++  return (
++    <main className="min-h-screen bg-(--paper)">
++      <header className="border-b border-(--line)">
++        <div className="max-w-270 mx-auto px-7 py-5 flex items-center justify-between">
++          <Link
++            href="/dashboard"
++            className="font-serif-brand font-bold text-[19px] flex items-center gap-2"
++          >
++            <span
++              className="w-4 h-4 rounded-md"
++              style={{
++                background:
++                  "linear-gradient(135deg, var(--amber), var(--ink) 130%)",
++              }}
++            />
++            LicensedRight
++          </Link>
++          <div className="flex items-center gap-4">
++            <span className="text-[13.5px] text-(--muted)">{user.email}</span>
++            <SignOutButton />
++          </div>
++        </div>
++      </header>
++
++      <div className="max-w-180 mx-auto px-7 py-10">
++        <Link
++          href="/dashboard"
++          className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
++        >
++          ← Back to dashboard
++        </Link>
++
++        <h1 className="font-serif-brand text-[28px] font-semibold mt-4">
++          Settings
++        </h1>
++
++        <div className="mt-8 bg-(--card) border border-(--red) rounded-md p-6">
++          <h2
++            className="font-serif-brand text-[19px] font-semibold"
++            style={{ color: "var(--red)" }}
++          >
++            Danger zone
++          </h2>
++          <p className="mt-2 text-[14.5px] text-(--muted) leading-relaxed">
++            Deleting your account permanently removes all your licenses, CE
++            credits, E&O and carrier appointment records, and reminder
++            history. This cannot be undone.
++          </p>
++          <DeleteAccountForm email={user.email ?? ""} />
++        </div>
++      </div>
++    </main>
++  );
++}
