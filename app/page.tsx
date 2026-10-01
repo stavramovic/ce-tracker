@@ -45,7 +45,7 @@ export default async function HomePage() {
               href={user ? "/dashboard" : "/login"}
               className="bg-(--ink) text-(--paper) px-4.5 py-2.5 rounded-md text-sm font-medium whitespace-nowrap hover:opacity-90 transition-opacity"
             >
-              {user ? "Go to dashboard" : "Create account"}
+              {user ? "Go to dashboard" : "Get started"}
             </Link>
           </div>
         </nav>

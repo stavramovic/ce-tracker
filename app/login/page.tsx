@@ -39,13 +39,13 @@ export default function LoginPage() {
     <main className="min-h-screen bg-(--paper) flex flex-col">
       {/* Sitan header sa brendom, konzistentan sa landing page-om */}
       <header className="w-full">
-        <div className="max-w-270 mx-auto px-7 py-6">
+        <div className="max-w-270 mx-auto px-7 py-5">
           <Link
             href="/"
             className="font-serif-brand font-bold text-[19px] flex items-center gap-2 w-fit"
           >
             <span
-              className="w-4 h-4 rounded-[3px]"
+              className="w-4 h-4 rounded-md"
               style={{
                 background:
                   "linear-gradient(135deg, var(--amber), var(--ink) 130%)",
@@ -73,14 +73,15 @@ export default function LoginPage() {
           ) : (
             <>
               <p className="text-[13px] font-semibold text-(--amber) tracking-wide mb-2">
-                WELCOME BACK
+                GET STARTED
               </p>
               <h1 className="font-serif-brand text-[26px] font-semibold leading-tight">
-                Sign in
+                Sign in or create an account
               </h1>
               <p className="mt-2 text-[15px] text-(--muted)">
-                Enter your email and we&apos;ll send you a login link. No
-                password to remember.
+                Enter your email and we&apos;ll send you a link. We&apos;ll
+                create your account if you&apos;re new, or sign you in if you
+                already have one. No password to remember.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
