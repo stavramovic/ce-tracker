@@ -4,6 +4,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess, FREE_LICENSE_LIMIT } from "@/lib/subscription";
 
 export async function addLicense(formData: FormData) {
   const supabase = await createClient();
@@ -14,6 +15,18 @@ export async function addLicense(formData: FormData) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  // Prva licenca je besplatna, druga i dalje traže aktivan plan.
+  if (!(await hasPaidAccess(user.id))) {
+    const { count } = await supabase
+      .from("licenses")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    if ((count ?? 0) >= FREE_LICENSE_LIMIT) {
+      redirect("/dashboard/billing?limit=license");
+    }
   }
 
   const state_code = formData.get("state_code") as string;

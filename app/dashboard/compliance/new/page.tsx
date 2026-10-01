@@ -1,8 +1,51 @@
 // app/dashboard/compliance/new/page.tsx
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess } from "@/lib/subscription";
 import { addComplianceItem } from "../actions";
 
-export default function NewComplianceItemPage() {
+export default async function NewComplianceItemPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  if (!(await hasPaidAccess(user.id))) {
+    return (
+      <main className="min-h-screen bg-(--paper)">
+        <header className="border-b border-(--line)">
+          <div className="max-w-180 mx-auto px-7 py-5 min-h-20 flex items-center">
+            <Link
+              href="/dashboard"
+              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+            >
+              ← Back to dashboard
+            </Link>
+          </div>
+        </header>
+        <div className="max-w-180 mx-auto px-7 py-10">
+          <div className="bg-(--card) border border-(--line) rounded-md p-8 text-center">
+            <h1 className="font-serif-brand text-[22px] font-semibold leading-tight">
+              Upgrade to track E&amp;O and appointments
+            </h1>
+            <p className="mt-3 text-[14.5px] text-(--muted) leading-relaxed">
+              E&amp;O insurance and carrier appointment tracking are included
+              on every paid plan, starting at $15/month.
+            </p>
+            <Link
+              href="/dashboard/billing"
+              className="inline-block mt-5 rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity"
+            >
+              View plans
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-(--paper)">
       <header className="border-b border-(--line)">

@@ -45,7 +45,13 @@ const PLANS: Plan[] = [
   },
 ];
 
-export default async function BillingPage() {
+export default async function BillingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ limit?: string; required?: string }>;
+}) {
+  const { limit } = await searchParams;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -54,6 +60,14 @@ export default async function BillingPage() {
   if (!user) {
     redirect("/login");
   }
+
+  const LIMIT_MESSAGES: Record<string, string> = {
+    license: "The free plan tracks one license. Upgrade to add more.",
+    compliance:
+      "E&O insurance and carrier appointment tracking are included on every paid plan.",
+    agency: "Inviting team members requires the Agency or Agency Plus plan.",
+  };
+  const limitMessage = limit ? LIMIT_MESSAGES[limit] : undefined;
 
   const { data: subscription } = await supabase
     .from("subscriptions")
@@ -99,6 +113,15 @@ export default async function BillingPage() {
         </Link>
 
         <h1 className="font-serif-brand text-[28px] font-semibold mt-4">Billing</h1>
+
+        {limitMessage && (
+          <div
+            className="mt-4 rounded-md border px-4 py-3 text-[13.5px] max-w-180"
+            style={{ borderColor: "var(--amber)", background: "rgba(184,132,46,0.08)" }}
+          >
+            {limitMessage}
+          </div>
+        )}
 
         {hasActiveSubscription ? (
           <div className="mt-6 bg-(--card) border border-(--line) rounded-md p-6 max-w-180">

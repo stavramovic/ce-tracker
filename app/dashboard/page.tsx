@@ -100,6 +100,12 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-4">
             <span className="text-[13.5px] text-(--muted)">{user.email}</span>
             <Link
+              href="/dashboard/agency"
+              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+            >
+              Team
+            </Link>
+            <Link
               href="/dashboard/billing"
               className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
             >

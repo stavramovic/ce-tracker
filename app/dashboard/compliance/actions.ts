@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess } from "@/lib/subscription";
 
 export async function addComplianceItem(formData: FormData) {
   const supabase = await createClient();
@@ -10,6 +11,12 @@ export async function addComplianceItem(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  // E&O/carrier appointment tracking nije deo besplatnog tier-a (samo prva
+  // licenca jeste) - traži aktivan plan.
+  if (!(await hasPaidAccess(user.id))) {
+    redirect("/dashboard/billing?limit=compliance");
+  }
 
   const item_type = formData.get("item_type") as string;
   const label = formData.get("label") as string;
