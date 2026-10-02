@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 
 export default function CheckoutButton({
@@ -18,13 +19,26 @@ export default function CheckoutButton({
   className?: string;
 }) {
   const [paddle, setPaddle] = useState<Paddle>();
+  const router = useRouter();
 
   const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
   const environment = process.env.NEXT_PUBLIC_PADDLE_ENV === "production" ? "production" : "sandbox";
 
   useEffect(() => {
     if (!token || paddle) return;
-    initializePaddle({ environment, token }).then((instance) => {
+    initializePaddle({
+      environment,
+      token,
+      // Webhook upisuje pretplatu u bazu asinhrono, ali u praksi stigne pre
+      // nego sto korisnik zatvori dijalog. Kad se overlay zatvori (bilo
+      // uspesno plaćanje, bilo klik na X), osvezi server-rendered deo
+      // stranice da billing status bude ažuran bez rucnog refresh-a.
+      eventCallback: (event) => {
+        if (event.name === "checkout.closed" || event.name === "checkout.completed") {
+          router.refresh();
+        }
+      },
+    }).then((instance) => {
       if (instance) setPaddle(instance);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
