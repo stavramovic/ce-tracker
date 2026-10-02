@@ -160,10 +160,10 @@ export default async function BillingPage({
                 priceId={plan.priceId}
                 email={user.email ?? ""}
                 userId={user.id}
-                className={`inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-opacity hover:opacity-90 ${
+                className={`inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-colors ${
                   plan.featured
-                    ? "bg-(--ink) text-(--paper)"
-                    : "bg-transparent text-(--ink) border border-(--line)"
+                    ? "bg-(--ink) text-(--paper) hover:opacity-90"
+                    : "bg-transparent text-(--ink) border border-(--line) hover:bg-(--paper2) hover:border-(--ink)"
                 }`}
               >
                 {subscription?.plan_name === plan.name ? "Current plan" : "Subscribe"}
