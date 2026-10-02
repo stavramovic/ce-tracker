@@ -354,6 +354,9 @@ export default async function HomePage() {
             <Link href="/privacy" className="hover:text-(--ink) transition-colors">
               Privacy
             </Link>
+            <Link href="/terms#refund-policy" className="hover:text-(--ink) transition-colors">
+              Refunds
+            </Link>
             <span>Not legal advice</span>
           </div>
         </footer>

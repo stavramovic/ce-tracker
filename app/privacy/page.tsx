@@ -116,6 +116,16 @@ export default function PrivacyPage() {
               <li>
                 <strong>Vercel</strong>: hosts the application itself.
               </li>
+              <li>
+                <strong>Paddle.com Market Limited</strong>: processes
+                payments for paid subscriptions and acts as merchant of
+                record. Your payment card details are provided directly to
+                Paddle, we never see or store them.
+              </li>
+              <li>
+                <strong>Sentry</strong>: helps us detect and fix application
+                errors.
+              </li>
             </ul>
             <p className="mt-3">
               We do not share your license or compliance data with insurance

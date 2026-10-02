@@ -103,21 +103,61 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
-              4. Pricing and early access
+              4. Pricing and billing
             </h2>
             <p>
-              LicensedRight is currently in an early access period. Pricing
-              shown on our website describes the plans we intend to offer,
-              but at this time no payment processing is active and no
-              account is being billed. If and when paid billing begins, we
-              will notify existing users in advance and no one will be
-              charged without clear notice and an opportunity to cancel.
+              LicensedRight offers a free tier (your first license, at no
+              charge) and paid monthly subscription plans as described on
+              our pricing page. Paid subscriptions are billed and processed
+              by{" "}
+              <a
+                href="https://www.paddle.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Paddle.com Market Limited
+              </a>
+              , our payment processor and merchant of record. Paddle handles
+              payment collection, sales tax/VAT, and invoicing on our behalf;
+              your payment details are provided to Paddle, not stored by us.
+            </p>
+            <p className="mt-3">
+              Subscriptions renew automatically each month until canceled.
+              You can cancel at any time from your billing page, effective
+              at the end of the current billing period, no further charges
+              apply afterward.
+            </p>
+          </section>
+
+          <section id="refund-policy">
+            <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
+              5. Refund policy
+            </h2>
+            <p>
+              If you&apos;re unhappy with LicensedRight shortly after a
+              charge, contact{" "}
+              <a
+                href="mailto:avmtechnologies2026@gmail.com"
+                className="underline"
+              >
+                avmtechnologies2026@gmail.com
+              </a>{" "}
+              within 14 days of that charge and we will issue a full refund,
+              no questions asked. Outside that window, charges for the
+              current billing period are generally non-refundable, but we
+              review requests case by case, for example for a clear billing
+              error or duplicate charge. Canceling your subscription stops
+              future renewals but does not itself refund the period already
+              paid for. Refunds, when approved, are processed by Paddle back
+              to your original payment method and may take several business
+              days to appear.
             </p>
           </section>
 
           <section>
             <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
-              5. Acceptable use
+              6. Acceptable use
             </h2>
             <p>
               You agree not to misuse the service, including attempting to
@@ -128,7 +168,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
-              6. Service &quot;as is&quot;
+              7. Service &quot;as is&quot;
             </h2>
             <p>
               The service is provided &quot;as is,&quot; without warranties
@@ -144,7 +184,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
-              7. Changes to these Terms
+              8. Changes to these Terms
             </h2>
             <p>
               We may update these Terms from time to time. If we make
@@ -156,7 +196,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
-              8. Governing law
+              9. Governing law
             </h2>
             <p>
               These Terms are governed by the laws of the Republic of
@@ -166,7 +206,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-serif-brand text-[19px] font-semibold mb-2">
-              9. Contact
+              10. Contact
             </h2>
             <p>
               Questions about these Terms? Reach us at{" "}
