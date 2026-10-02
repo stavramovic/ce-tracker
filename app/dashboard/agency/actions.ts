@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendAgencyInviteEmail } from "@/lib/resend";
-import { getSeatLimit } from "@/lib/subscription";
+import { getSeatLimit, ACTIVE_STATUSES } from "@/lib/subscription";
 
 const SITE_URL = "https://getlicensedright.com";
 
@@ -23,7 +23,7 @@ async function getOwnerPlanName(ownerId: string): Promise<string | null> {
     .limit(1)
     .maybeSingle();
 
-  if (!data || !["active", "on_trial", "past_due"].includes(data.status)) {
+  if (!data || !ACTIVE_STATUSES.includes(data.status)) {
     return null;
   }
   return data.plan_name;

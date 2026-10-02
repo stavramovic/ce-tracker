@@ -1,68 +1,61 @@
 // app/dashboard/billing/checkout-button.tsx
 "use client";
 
-import { useEffect } from "react";
-
-declare global {
-  interface Window {
-    createLemonSqueezy?: () => void;
-  }
-}
+import { useEffect, useState } from "react";
+import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 
 export default function CheckoutButton({
-  variantId,
+  priceId,
   email,
   userId,
   children,
   className,
 }: {
-  variantId: string;
+  priceId: string;
   email: string;
   userId: string;
   children: React.ReactNode;
   className?: string;
 }) {
+  const [paddle, setPaddle] = useState<Paddle>();
+
+  const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
+  const environment = process.env.NEXT_PUBLIC_PADDLE_ENV === "production" ? "production" : "sandbox";
+
   useEffect(() => {
-    // Lemon.js presreće klikove na .lemonsqueezy-button linkove i otvara
-    // overlay checkout umesto da pređe na novu stranicu. Učitaj samo jednom.
-    if (document.getElementById("lemonsqueezy-js")) {
-      window.createLemonSqueezy?.();
-      return;
-    }
-    const script = document.createElement("script");
-    script.id = "lemonsqueezy-js";
-    script.src = "https://app.lemonsqueezy.com/js/lemon.js";
-    script.defer = true;
-    script.onload = () => window.createLemonSqueezy?.();
-    document.body.appendChild(script);
-  }, []);
+    if (!token || paddle) return;
+    initializePaddle({ environment, token }).then((instance) => {
+      if (instance) setPaddle(instance);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
-  const storeSubdomain = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_SUBDOMAIN;
-
-  if (!variantId || !storeSubdomain) {
+  if (!priceId || !token) {
     return (
       <button
         type="button"
         disabled
         className={`${className ?? ""} opacity-40 cursor-not-allowed`}
-        title="Lemon Squeezy nije još podešen (nedostaje variant ID ili store subdomain)"
+        title="Paddle nije još podešen (nedostaje price ID ili client token)"
       >
         {children}
       </button>
     );
   }
 
-  // custom[user_id] stiže nazad u webhook payload-u (meta.custom_data) i
-  // tako povezujemo Lemon Squeezy pretplatu sa pravim korisnikom u bazi.
-  const checkoutUrl =
-    `https://${storeSubdomain}.lemonsqueezy.com/checkout/buy/${variantId}` +
-    `?checkout[email]=${encodeURIComponent(email)}` +
-    `&checkout[custom][user_id]=${encodeURIComponent(userId)}` +
-    `&embed=1`;
+  // customData.user_id stiže nazad u webhook payload-u (data.custom_data) i
+  // tako povezujemo Paddle pretplatu sa pravim korisnikom u bazi.
+  function openCheckout() {
+    paddle?.Checkout.open({
+      items: [{ priceId, quantity: 1 }],
+      customer: { email },
+      customData: { user_id: userId },
+    });
+  }
 
   return (
-    <a href={checkoutUrl} className={`lemonsqueezy-button ${className ?? ""}`}>
+    <button type="button" onClick={openCheckout} disabled={!paddle} className={className}>
       {children}
-    </a>
+    </button>
   );
 }

@@ -2,48 +2,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ACTIVE_STATUSES } from "@/lib/subscription";
+import { PLANS } from "@/lib/paddle-plans";
+import { getSubscriptionManagementUrls } from "@/lib/paddle-api";
 import SignOutButton from "../sign-out-button";
 import CheckoutButton from "./checkout-button";
-
-type Plan = {
-  name: string;
-  price: string;
-  variantId: string;
-  features: string[];
-  featured: boolean;
-};
-
-const PLANS: Plan[] = [
-  {
-    name: "Independent Agent",
-    price: "$15",
-    variantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_VARIANT_INDEPENDENT ?? "",
-    features: [
-      "1 agent",
-      "Unlimited licenses, every state",
-      "CE hours tracked by state rules",
-      "E&O and carrier appointment tracking",
-      "Reminders at 90, 60, 30, and 7 days",
-      "Audit-ready PDF report",
-      "Email support",
-    ],
-    featured: false,
-  },
-  {
-    name: "Agency",
-    price: "$99",
-    variantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_VARIANT_AGENCY ?? "",
-    features: ["Up to 5 agents", "Owner dashboard across the team", "Everything in Independent Agent"],
-    featured: true,
-  },
-  {
-    name: "Agency Plus",
-    price: "$179",
-    variantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_VARIANT_AGENCY_PLUS ?? "",
-    features: ["Up to 15 agents", "Priority support", "Everything in Agency"],
-    featured: false,
-  },
-];
 
 export default async function BillingPage({
   searchParams,
@@ -71,15 +34,20 @@ export default async function BillingPage({
 
   const { data: subscription } = await supabase
     .from("subscriptions")
-    .select("plan_name, status, renews_at, ends_at")
+    .select("plan_name, status, renews_at, ends_at, paddle_subscription_id")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  const storeSubdomain = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_SUBDOMAIN;
-  const hasActiveSubscription =
-    subscription && ["active", "on_trial", "past_due"].includes(subscription.status);
+  const hasActiveSubscription = subscription && ACTIVE_STATUSES.includes(subscription.status);
+
+  // Paddle namerno ne salje management_urls (update payment method / cancel)
+  // kroz webhook - kratko traju, moraju se povuci live preko API-ja.
+  const managementUrls =
+    hasActiveSubscription && subscription!.paddle_subscription_id
+      ? await getSubscriptionManagementUrls(subscription!.paddle_subscription_id)
+      : null;
 
   return (
     <main className="min-h-screen bg-(--paper)">
@@ -132,15 +100,29 @@ export default async function BillingPage({
               {subscription!.renews_at &&
                 `, renews ${new Date(subscription!.renews_at).toLocaleDateString()}`}
             </p>
-            {storeSubdomain && (
-              <a
-                href={`https://${storeSubdomain}.lemonsqueezy.com/billing`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-4 text-[13.5px] underline hover:text-(--ink) text-(--muted)"
-              >
-                Manage billing, update card, or cancel →
-              </a>
+            {managementUrls && (
+              <div className="flex gap-4 mt-4">
+                {managementUrls.updatePaymentMethod && (
+                  <a
+                    href={managementUrls.updatePaymentMethod}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[13.5px] underline hover:text-(--ink) text-(--muted)"
+                  >
+                    Update payment method →
+                  </a>
+                )}
+                {managementUrls.cancel && (
+                  <a
+                    href={managementUrls.cancel}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[13.5px] underline hover:text-(--ink) text-(--muted)"
+                  >
+                    Cancel subscription →
+                  </a>
+                )}
+              </div>
             )}
           </div>
         ) : (
@@ -175,7 +157,7 @@ export default async function BillingPage({
                 ))}
               </ul>
               <CheckoutButton
-                variantId={plan.variantId}
+                priceId={plan.priceId}
                 email={user.email ?? ""}
                 userId={user.id}
                 className={`inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-opacity hover:opacity-90 ${

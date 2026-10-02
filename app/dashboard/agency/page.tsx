@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getSeatLimit } from "@/lib/subscription";
+import { getSeatLimit, ACTIVE_STATUSES } from "@/lib/subscription";
 import { getMemberOverview } from "@/lib/agency-overview";
 import SignOutButton from "../sign-out-button";
 import { inviteMember, removeMember } from "./actions";
@@ -37,8 +37,7 @@ export default async function AgencyPage() {
     .limit(1)
     .maybeSingle();
 
-  const isActive =
-    subscription && ["active", "on_trial", "past_due"].includes(subscription.status);
+  const isActive = subscription && ACTIVE_STATUSES.includes(subscription.status);
   const seatLimit = isActive ? getSeatLimit(subscription!.plan_name) : 0;
 
   const admin = createAdminClient();
