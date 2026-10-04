@@ -55,7 +55,7 @@ export default async function HomePage() {
         <div className="hero-rise py-13 lg:py-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-14 items-start">
           <div>
             <div className="text-[13px] text-(--amber) font-semibold mb-3.5 tracking-wide">
-              FOR INDEPENDENT INSURANCE AGENTS
+              FOR INSURANCE AGENTS AND AGENCIES
             </div>
             <h1 className="font-serif-brand text-[34px] sm:text-[40px] lg:text-[46px] leading-[1.1] max-w-lg">
               Your license doesn&apos;t lapse overnight. It lapses when you
@@ -87,6 +87,13 @@ export default async function HomePage() {
               <span className="text-xs text-(--muted) font-medium">
                 4 states
               </span>
+            </div>
+            <div className="px-4.5 py-3 border-b border-(--line) bg-(--paper2) flex items-center gap-2.5 text-[13px] font-semibold">
+              <span
+                className="w-2 h-2 rounded-full flex-none"
+                style={{ background: "var(--red)" }}
+              />
+              1 compliance issue, 1 item needs attention
             </div>
             {[
               { dot: "var(--green)", state: "California", sub: "P&C", days: "312 days", urgent: false },
@@ -237,6 +244,58 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="py-15 border-y border-(--line) bg-(--paper2)">
+        <div className="max-w-270 mx-auto px-7 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-12 items-center">
+          <div>
+            <div className="text-[13px] text-(--amber) font-semibold mb-3.5 tracking-wide">
+              FOR AGENCY OWNERS
+            </div>
+            <h2 className="font-serif-brand text-[28px] max-w-md">
+              Know which agents are at risk before it becomes a problem
+            </h2>
+            <p className="text-(--muted) text-[15.5px] mt-2.5 max-w-md">
+              Invite your agents and see every license, the nearest renewal,
+              and any E&O item that needs attention in one owner dashboard,
+              instead of chasing each person for a screenshot.
+            </p>
+          </div>
+
+          <div className="bg-(--card) border border-(--line) rounded-xl overflow-hidden shadow-[0_24px_48px_-24px_rgba(22,35,46,0.18)]">
+            <div className="px-4.5 py-4 border-b border-(--line) flex justify-between items-center">
+              <span className="text-xs text-(--muted) font-medium">
+                YOUR TEAM
+              </span>
+              <span className="text-xs text-(--muted) font-medium">
+                3 agents
+              </span>
+            </div>
+            {[
+              { dot: "var(--green)", name: "Sarah", note: "All clear" },
+              { dot: "var(--amber)", name: "John", note: "E&O renews in 31 days" },
+              { dot: "var(--red)", name: "Mike", note: "Florida license expired" },
+            ].map((row, i) => (
+              <div
+                key={row.name}
+                className={`flex items-center justify-between px-4.5 py-3.5 ${
+                  i > 0 ? "border-t border-(--line)" : ""
+                }`}
+              >
+                <span className="flex items-center gap-2.5 font-semibold text-[14.5px]">
+                  <span
+                    className="w-2 h-2 rounded-full flex-none"
+                    style={{ background: row.dot }}
+                  />
+                  {row.name}
+                </span>
+                <span className="text-[13px] text-(--muted) text-right whitespace-nowrap">
+                  {row.note}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="pricing" className="py-15">
         <div className="max-w-270 mx-auto px-7">
           <div className="max-w-xl mb-9">
@@ -272,7 +331,7 @@ export default async function HomePage() {
                 price: "$99",
                 features: [
                   "Up to 5 agents",
-                  "Owner dashboard across the team",
+                  "Owner dashboard: every agent's license and E&O status at a glance",
                   "Everything in Independent Agent",
                 ],
                 featured: true,
