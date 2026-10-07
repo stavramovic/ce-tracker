@@ -6,7 +6,7 @@ import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { licenseTypeToSlug } from "@/lib/state-slugs";
 
-const SITE_URL = "https://getlicensedright.com";
+const SITE_URL = "https://www.getlicensedright.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
