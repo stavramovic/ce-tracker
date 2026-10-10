@@ -345,7 +345,7 @@ export default async function HomePage() {
             ].map((plan) => (
               <div
                 key={plan.name}
-                className={`bg-(--card) border rounded-xl p-7 ${
+                className={`bg-(--card) border rounded-xl p-7 flex flex-col ${
                   plan.featured
                     ? "border-(--ink) shadow-[0_20px_40px_-28px_rgba(22,35,46,0.35)]"
                     : "border-(--line)"
@@ -360,7 +360,7 @@ export default async function HomePage() {
                     /month
                   </span>
                 </div>
-                <ul className="list-none p-0 m-0 mb-5 text-[13.5px]">
+                <ul className="list-none p-0 m-0 mb-5 text-[13.5px] flex-1">
                   {plan.features.map((feat, i) => (
                     <li
                       key={feat}
@@ -389,7 +389,7 @@ export default async function HomePage() {
                 </ul>
                 <Link
                   href={user ? "/dashboard" : "/login"}
-                  className={`inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-opacity hover:opacity-90 ${
+                  className={`self-start inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-opacity hover:opacity-90 ${
                     plan.featured
                       ? "bg-(--ink) text-(--paper)"
                       : "bg-transparent text-(--ink) border border-(--line)"

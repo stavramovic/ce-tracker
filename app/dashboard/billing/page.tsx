@@ -135,7 +135,7 @@ export default async function BillingPage({
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`bg-(--card) border rounded-xl p-7 ${
+              className={`bg-(--card) border rounded-xl p-7 flex flex-col ${
                 plan.featured
                   ? "border-(--ink) shadow-[0_20px_40px_-28px_rgba(22,35,46,0.35)]"
                   : "border-(--line)"
@@ -146,7 +146,7 @@ export default async function BillingPage({
                 {plan.price}
                 <span className="text-[15px] text-(--muted) font-sans">/month</span>
               </div>
-              <ul className="list-none p-0 m-0 mb-5 text-[13.5px]">
+              <ul className="list-none p-0 m-0 mb-5 text-[13.5px] flex-1">
                 {plan.features.map((feat, i) => (
                   <li
                     key={feat}
@@ -160,7 +160,7 @@ export default async function BillingPage({
                 priceId={plan.priceId}
                 email={user.email ?? ""}
                 userId={user.id}
-                className={`inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                className={`self-start inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-colors ${
                   plan.featured
                     ? "bg-(--ink) text-(--paper) hover:opacity-90"
                     : "bg-transparent text-(--ink) border border-(--line) hover:bg-(--paper2) hover:border-(--ink)"
