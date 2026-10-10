@@ -8,6 +8,17 @@ import SignOutButton from "../sign-out-button";
 import CheckoutButton from "./checkout-button";
 import AutoRefresh from "./auto-refresh";
 
+// Jasan format datuma (npr. "Nov 10, 2026"); fiksna locale i UTC da server
+// ne daje dvosmislen "11/10/2026".
+function formatDate(value: string): string {
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export default async function BillingPage({
   searchParams,
 }: {
@@ -110,9 +121,9 @@ export default async function BillingPage({
             <p className="text-[13.5px] text-(--muted) mt-1">
               Status: {subscription!.status}
               {subscription!.ends_at
-                ? `, ends ${new Date(subscription!.ends_at).toLocaleDateString()}`
+                ? `, ends ${formatDate(subscription!.ends_at)}`
                 : subscription!.renews_at &&
-                  `, renews ${new Date(subscription!.renews_at).toLocaleDateString()}`}
+                  `, renews ${formatDate(subscription!.renews_at)}`}
             </p>
             <div className="flex gap-4 mt-4">
               <a
