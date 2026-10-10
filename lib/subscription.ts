@@ -5,9 +5,10 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// Paddle statusi (subscription.status): active, trialing, past_due, paused,
-// canceled. Ovo je drugacije od Lemon Squeezy ("on_trial") - ako se ikad
-// vrati provider sa drugim nazivima, ovo je jedino mesto za izmenu.
+// Polar statusi (subscription.status): incomplete, trialing, active,
+// past_due, canceled, unpaid. Pretplata otkazana na kraju perioda ostaje
+// "active" do tog datuma (cancel_at_period_end). Ako se ikad promeni provider
+// sa drugim nazivima, ovo je jedino mesto za izmenu.
 export const ACTIVE_STATUSES = ["active", "trialing", "past_due"];
 
 // Besplatan tier: prva licenca je besplatna (vidi "Free for your first

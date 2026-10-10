@@ -3,17 +3,17 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ACTIVE_STATUSES } from "@/lib/subscription";
-import { PLANS } from "@/lib/paddle-plans";
-import { getSubscriptionManagementUrls } from "@/lib/paddle-api";
+import { PLANS } from "@/lib/polar-plans";
 import SignOutButton from "../sign-out-button";
 import CheckoutButton from "./checkout-button";
+import AutoRefresh from "./auto-refresh";
 
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ limit?: string; required?: string }>;
+  searchParams: Promise<{ limit?: string; required?: string; checkout?: string; portal?: string }>;
 }) {
-  const { limit } = await searchParams;
+  const { limit, checkout, portal } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -34,7 +34,7 @@ export default async function BillingPage({
 
   const { data: subscription } = await supabase
     .from("subscriptions")
-    .select("plan_name, status, renews_at, ends_at, paddle_subscription_id")
+    .select("plan_name, status, renews_at, ends_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -42,12 +42,10 @@ export default async function BillingPage({
 
   const hasActiveSubscription = subscription && ACTIVE_STATUSES.includes(subscription.status);
 
-  // Paddle namerno ne salje management_urls (update payment method / cancel)
-  // kroz webhook - kratko traju, moraju se povuci live preko API-ja.
-  const managementUrls =
-    hasActiveSubscription && subscription!.paddle_subscription_id
-      ? await getSubscriptionManagementUrls(subscription!.paddle_subscription_id)
-      : null;
+  // Posle plaćanja Polar nas vraća ovde sa ?checkout=success, ali webhook
+  // upisuje pretplatu asinhrono - dok se ne pojavi, prikazujemo poruku i
+  // automatski osvežavamo stranicu.
+  const awaitingActivation = checkout === "success" && !hasActiveSubscription;
 
   return (
     <main className="min-h-screen bg-(--paper)">
@@ -82,6 +80,20 @@ export default async function BillingPage({
 
         <h1 className="font-serif-brand text-[28px] font-semibold mt-4">Billing</h1>
 
+        {awaitingActivation && (
+          <div className="mt-4 rounded-md border border-(--line) bg-(--card) px-4 py-3 text-[13.5px] max-w-180">
+            Thanks! Your payment went through. We&apos;re activating your plan, this page
+            will update in a few seconds.
+            <AutoRefresh />
+          </div>
+        )}
+
+        {portal === "error" && (
+          <div className="mt-4 rounded-md border border-(--line) bg-(--card) px-4 py-3 text-[13.5px] max-w-180">
+            We couldn&apos;t open the subscription portal. Please try again, or email support.
+          </div>
+        )}
+
         {limitMessage && (
           <div
             className="mt-4 rounded-md border px-4 py-3 text-[13.5px] max-w-180"
@@ -97,33 +109,19 @@ export default async function BillingPage({
             <p className="text-[19px] font-semibold mt-0.5">{subscription!.plan_name}</p>
             <p className="text-[13.5px] text-(--muted) mt-1">
               Status: {subscription!.status}
-              {subscription!.renews_at &&
-                `, renews ${new Date(subscription!.renews_at).toLocaleDateString()}`}
+              {subscription!.ends_at
+                ? `, ends ${new Date(subscription!.ends_at).toLocaleDateString()}`
+                : subscription!.renews_at &&
+                  `, renews ${new Date(subscription!.renews_at).toLocaleDateString()}`}
             </p>
-            {managementUrls && (
-              <div className="flex gap-4 mt-4">
-                {managementUrls.updatePaymentMethod && (
-                  <a
-                    href={managementUrls.updatePaymentMethod}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[13.5px] underline hover:text-(--ink) text-(--muted)"
-                  >
-                    Update payment method →
-                  </a>
-                )}
-                {managementUrls.cancel && (
-                  <a
-                    href={managementUrls.cancel}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[13.5px] underline hover:text-(--ink) text-(--muted)"
-                  >
-                    Cancel subscription →
-                  </a>
-                )}
-              </div>
-            )}
+            <div className="flex gap-4 mt-4">
+              <a
+                href="/api/billing/portal"
+                className="text-[13.5px] underline hover:text-(--ink) text-(--muted)"
+              >
+                Manage subscription (payment method, cancel, invoices) →
+              </a>
+            </div>
           </div>
         ) : (
           <p className="mt-2 text-[14.5px] text-(--muted)">
@@ -157,9 +155,7 @@ export default async function BillingPage({
                 ))}
               </ul>
               <CheckoutButton
-                priceId={plan.priceId}
-                email={user.email ?? ""}
-                userId={user.id}
+                productId={plan.productId}
                 className={`self-start inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-colors ${
                   plan.featured
                     ? "bg-(--ink) text-(--paper) hover:opacity-90"

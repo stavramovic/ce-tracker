@@ -117,10 +117,10 @@ export default function PrivacyPage() {
                 <strong>Vercel</strong>: hosts the application itself.
               </li>
               <li>
-                <strong>Paddle.com Market Limited</strong>: processes
+                <strong>Polar Software Inc.</strong>: processes
                 payments for paid subscriptions and acts as merchant of
                 record. Your payment card details are provided directly to
-                Paddle, we never see or store them.
+                Polar, we never see or store them.
               </li>
               <li>
                 <strong>Sentry</strong>: helps us detect and fix application

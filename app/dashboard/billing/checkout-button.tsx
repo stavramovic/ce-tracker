@@ -1,75 +1,60 @@
 // app/dashboard/billing/checkout-button.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { initializePaddle, type Paddle } from "@paddle/paddle-js";
+import { useState } from "react";
 
 export default function CheckoutButton({
-  priceId,
-  email,
-  userId,
+  productId,
   children,
   className,
 }: {
-  priceId: string;
-  email: string;
-  userId: string;
+  productId: string;
   children: React.ReactNode;
   className?: string;
 }) {
-  const [paddle, setPaddle] = useState<Paddle>();
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
-  const environment = process.env.NEXT_PUBLIC_PADDLE_ENV === "production" ? "production" : "sandbox";
+  // Server pravi Polar checkout sesiju (token ostaje na serveru) i vraća URL;
+  // browser samo preusmerimo tamo. Polar nas posle plaćanja vraća na billing
+  // stranicu (success_url), a pretplatu upisuje webhook.
+  async function startCheckout() {
+    setLoading(true);
+    setError(null);
 
-  useEffect(() => {
-    if (!token || paddle) return;
-    initializePaddle({
-      environment,
-      token,
-      // Webhook upisuje pretplatu u bazu asinhrono, ali u praksi stigne pre
-      // nego sto korisnik zatvori dijalog. Kad se overlay zatvori (bilo
-      // uspesno plaćanje, bilo klik na X), osvezi server-rendered deo
-      // stranice da billing status bude ažuran bez rucnog refresh-a.
-      eventCallback: (event) => {
-        if (event.name === "checkout.closed" || event.name === "checkout.completed") {
-          router.refresh();
-        }
-      },
-    }).then((instance) => {
-      if (instance) setPaddle(instance);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
 
-  if (!priceId || !token) {
-    return (
-      <button
-        type="button"
-        disabled
-        className={`${className ?? ""} opacity-40 cursor-not-allowed`}
-        title="Paddle nije još podešen (nedostaje price ID ili client token)"
-      >
-        {children}
-      </button>
-    );
-  }
+      const json = await res.json().catch(() => null);
 
-  // customData.user_id stiže nazad u webhook payload-u (data.custom_data) i
-  // tako povezujemo Paddle pretplatu sa pravim korisnikom u bazi.
-  function openCheckout() {
-    paddle?.Checkout.open({
-      items: [{ priceId, quantity: 1 }],
-      customer: { email },
-      customData: { user_id: userId },
-    });
+      if (!res.ok || !json?.url) {
+        setError("Could not start checkout. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      window.location.href = json.url;
+    } catch {
+      setError("Could not start checkout. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
-    <button type="button" onClick={openCheckout} disabled={!paddle} className={className}>
-      {children}
-    </button>
+    <div className="self-start">
+      <button
+        type="button"
+        onClick={startCheckout}
+        disabled={loading}
+        className={`${className ?? ""} ${loading ? "opacity-60 cursor-wait" : ""}`}
+      >
+        {loading ? "Redirecting..." : children}
+      </button>
+      {error && <p className="text-[12.5px] text-(--red) mt-2">{error}</p>}
+    </div>
   );
 }

@@ -111,16 +111,16 @@ export default function TermsPage() {
               our pricing page. Paid subscriptions are billed and processed
               by{" "}
               <a
-                href="https://www.paddle.com"
+                href="https://polar.sh"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
               >
-                Paddle.com Market Limited
+                Polar Software Inc.
               </a>
-              , our payment processor and merchant of record. Paddle handles
+              , our payment processor and merchant of record. Polar handles
               payment collection, sales tax/VAT, and invoicing on our behalf;
-              your payment details are provided to Paddle, not stored by us.
+              your payment details are provided to Polar, not stored by us.
             </p>
             <p className="mt-3">
               Subscriptions renew automatically each month until canceled.
@@ -149,7 +149,7 @@ export default function TermsPage() {
               review requests case by case, for example for a clear billing
               error or duplicate charge. Canceling your subscription stops
               future renewals but does not itself refund the period already
-              paid for. Refunds, when approved, are processed by Paddle back
+              paid for. Refunds, when approved, are processed by Polar back
               to your original payment method and may take several business
               days to appear.
             </p>
