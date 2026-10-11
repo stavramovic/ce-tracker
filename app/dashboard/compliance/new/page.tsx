@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasPaidAccess } from "@/lib/subscription";
 import { addComplianceItem } from "../actions";
+import DashboardHeader from "../../dashboard-header";
 
 export default async function NewComplianceItemPage() {
   const supabase = await createClient();
@@ -15,18 +16,15 @@ export default async function NewComplianceItemPage() {
   if (!(await hasPaidAccess(user.id))) {
     return (
       <main className="min-h-screen bg-(--paper)">
-        <header className="border-b border-(--line)">
-          <div className="max-w-180 mx-auto px-7 py-5 min-h-20 flex items-center">
+        <DashboardHeader email={user.email} />
+        <div className="max-w-180 mx-auto px-7 py-10">
+          <div className="bg-(--card) border border-(--line) rounded-md p-8 text-center">
             <Link
               href="/dashboard"
-              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+              className="inline-block mb-4 text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
             >
               ← Back to dashboard
             </Link>
-          </div>
-        </header>
-        <div className="max-w-180 mx-auto px-7 py-10">
-          <div className="bg-(--card) border border-(--line) rounded-md p-8 text-center">
             <h1 className="font-serif-brand text-[22px] font-semibold leading-tight">
               Upgrade to track E&amp;O and appointments
             </h1>
@@ -48,18 +46,15 @@ export default async function NewComplianceItemPage() {
 
   return (
     <main className="min-h-screen bg-(--paper)">
-      <header className="border-b border-(--line)">
-        <div className="max-w-180 mx-auto px-7 py-5">
-          <Link
-            href="/dashboard"
-            className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
-          >
-            ← Back to dashboard
-          </Link>
-        </div>
-      </header>
+      <DashboardHeader email={user.email} />
 
       <div className="max-w-180 mx-auto px-7 py-10">
+        <Link
+          href="/dashboard"
+          className="inline-block mb-4 text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+        >
+          ← Back to dashboard
+        </Link>
         <h1 className="font-serif-brand text-[26px] font-semibold mb-1">
           Add E&O policy or carrier appointment
         </h1>

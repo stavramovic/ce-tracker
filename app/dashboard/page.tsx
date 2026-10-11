@@ -5,8 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { calculateCompliance, type ComplianceStatus } from "@/lib/ce-calculator";
 import { getItemUrgency, ITEM_TYPE_LABELS } from "@/lib/compliance-status";
 import { formatMissingSpecial } from "@/lib/special-requirement-labels";
-import SignOutButton from "./sign-out-button";
 import { autoAcceptPendingInvites } from "./agency/actions";
+import DashboardHeader from "./dashboard-header";
 
 type License = {
   id: string;
@@ -91,45 +91,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-(--paper)">
-      <header className="border-b border-(--line)">
-        <div className="max-w-270 mx-auto px-7 py-5 min-h-20 flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-serif-brand font-bold text-[19px] flex items-center gap-2"
-          >
-            <span
-              className="w-4 h-4 rounded-[3px]"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--amber), var(--ink) 130%)",
-              }}
-            />
-            LicensedRight
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-[13.5px] text-(--muted)">{user.email}</span>
-            <Link
-              href="/dashboard/agency"
-              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
-            >
-              Team
-            </Link>
-            <Link
-              href="/dashboard/billing"
-              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
-            >
-              Billing
-            </Link>
-            <Link
-              href="/dashboard/settings"
-              className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
-            >
-              Settings
-            </Link>
-            <SignOutButton />
-          </div>
-        </div>
-      </header>
+      <DashboardHeader email={user.email} />
 
       <div className="max-w-270 mx-auto px-7 py-10">
         <div className="flex items-center justify-between mb-8">

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasPaidAccess, FREE_LICENSE_LIMIT } from "@/lib/subscription";
 import { addLicense } from "../actions";
+import DashboardHeader from "../dashboard-header";
 
 const STATES = ["CA", "TX", "FL", "NY", "PA", "IL", "OH", "GA", "NC", "WA"];
 const LICENSE_TYPES = ["P&C", "Life", "Personal Lines"];
@@ -24,18 +25,15 @@ export default async function NewLicensePage() {
     if ((count ?? 0) >= FREE_LICENSE_LIMIT) {
       return (
         <main className="min-h-screen bg-(--paper) flex flex-col">
-          <header className="border-b border-(--line)">
-            <div className="max-w-270 mx-auto px-7 py-5 min-h-20 flex items-center">
+          <DashboardHeader email={user.email} />
+          <div className="flex-1 flex items-center justify-center px-4 py-10">
+            <div className="w-full max-w-105 bg-(--card) border border-(--line) rounded-md shadow-[0_24px_48px_-24px_rgba(22,35,46,0.18)] p-8 text-center">
               <Link
                 href="/dashboard"
-                className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+                className="inline-block mb-4 text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
               >
                 ← Back to dashboard
               </Link>
-            </div>
-          </header>
-          <div className="flex-1 flex items-center justify-center px-4 py-10">
-            <div className="w-full max-w-105 bg-(--card) border border-(--line) rounded-md shadow-[0_24px_48px_-24px_rgba(22,35,46,0.18)] p-8 text-center">
               <h1 className="font-serif-brand text-[22px] font-semibold leading-tight">
                 You&apos;re on the free plan
               </h1>
@@ -58,19 +56,16 @@ export default async function NewLicensePage() {
 
   return (
     <main className="min-h-screen bg-(--paper) flex flex-col">
-      <header className="border-b border-(--line)">
-        <div className="max-w-270 mx-auto px-7 py-5">
-          <Link
-            href="/dashboard"
-            className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
-          >
-            ← Back to dashboard
-          </Link>
-        </div>
-      </header>
+      <DashboardHeader email={user.email} />
 
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-105 bg-(--card) border border-(--line) rounded-[10px] shadow-[0_24px_48px_-24px_rgba(22,35,46,0.18)] p-8">
+          <Link
+            href="/dashboard"
+            className="inline-block mb-4 text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+          >
+            ← Back to dashboard
+          </Link>
           <h1 className="font-serif-brand text-[24px] font-semibold leading-tight">
             Add a license
           </h1>

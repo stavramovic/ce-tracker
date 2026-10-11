@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateComplianceItem, deleteComplianceItem } from "../actions";
+import DashboardHeader from "../../dashboard-header";
 
 export default async function EditComplianceItemPage({
   params,
@@ -31,18 +32,15 @@ export default async function EditComplianceItemPage({
 
   return (
     <main className="min-h-screen bg-(--paper)">
-      <header className="border-b border-(--line)">
-        <div className="max-w-180 mx-auto px-7 py-5">
-          <Link
-            href="/dashboard"
-            className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
-          >
-            ← Back to dashboard
-          </Link>
-        </div>
-      </header>
+      <DashboardHeader email={user.email} />
 
       <div className="max-w-180 mx-auto px-7 py-10">
+        <Link
+          href="/dashboard"
+          className="inline-block mb-4 text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+        >
+          ← Back to dashboard
+        </Link>
         <h1 className="font-serif-brand text-[26px] font-semibold mb-8">
           Edit {item.label}
         </h1>

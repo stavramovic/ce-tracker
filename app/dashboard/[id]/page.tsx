@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { calculateCompliance } from "@/lib/ce-calculator";
 import { addCredit } from "./actions";
+import DashboardHeader from "../dashboard-header";
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   compliant: { label: "Compliant", color: "var(--green)" },
@@ -71,18 +72,15 @@ export default async function LicenseDetailPage({
 
   return (
     <main className="min-h-screen bg-(--paper)">
-      <header className="border-b border-(--line)">
-        <div className="max-w-270 mx-auto px-7 py-5">
-          <Link
-            href="/dashboard"
-            className="text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
-          >
-            ← Back to dashboard
-          </Link>
-        </div>
-      </header>
+      <DashboardHeader email={user.email} />
 
       <div className="max-w-180 mx-auto px-7 py-10">
+        <Link
+          href="/dashboard"
+          className="inline-block mb-4 text-[13.5px] text-(--muted) hover:text-(--ink) transition-colors"
+        >
+          ← Back to dashboard
+        </Link>
         <h1 className="font-serif-brand text-[28px] font-semibold">
           {license.state_code} · {license.license_type}
         </h1>
