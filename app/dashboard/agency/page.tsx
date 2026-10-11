@@ -118,9 +118,19 @@ export default async function AgencyPage() {
           </div>
         ) : (
           <>
-            <p className="mt-2 text-[14.5px] text-(--muted)">
-              {memberRows.length} / {seatLimit} seats used
-            </p>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-[14.5px] text-(--muted)">
+                {memberRows.length} / {seatLimit} seats used
+              </p>
+              {memberRows.length > 0 && (
+                <a
+                  href="/api/export/team"
+                  className="rounded-md border border-(--line) px-3.5 py-2 text-[13.5px] font-medium hover:border-(--ink) transition-colors"
+                >
+                  Export team CSV
+                </a>
+              )}
+            </div>
 
             <form
               action={inviteMember}

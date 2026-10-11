@@ -143,12 +143,22 @@ export default async function DashboardPage() {
                 : `Tracking ${rows.length} license${rows.length === 1 ? "" : "s"}.`}
             </p>
           </div>
-          <Link
-            href="/dashboard/new"
-            className="rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-          >
-            + Add license
-          </Link>
+          <div className="flex items-center gap-3">
+            {rows.length > 0 && (
+              <a
+                href="/api/export/my"
+                className="rounded-md border border-(--line) px-4 py-2.5 text-[14px] font-medium hover:border-(--ink) transition-colors whitespace-nowrap"
+              >
+                Export CSV
+              </a>
+            )}
+            <Link
+              href="/dashboard/new"
+              className="rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+            >
+              + Add license
+            </Link>
+          </div>
         </div>
 
         {rows.length === 0 ? (
