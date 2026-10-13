@@ -10,6 +10,19 @@
   --muted: #5b6670;
   --card: #ffffff;
   --line: #d6d9d0;
+  /* Svetle varijante statusnih boja za bedževe i pozadine. */
+  --green-soft: #e1ebe4;
+  --amber-soft: #f3e8d0;
+  --red-soft: #f2ddd8;
+  --ink-hover: #25384a;
+  --amber-ink: #7a5518;
+}
+
+/* Vidljiv fokus za tastaturu na svim interaktivnim elementima. */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* Rezerviše prostor za vertikalni scroll bar UVEK, da se sadržaj (i header)

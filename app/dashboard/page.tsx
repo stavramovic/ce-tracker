@@ -7,6 +7,7 @@ import { getItemUrgency, ITEM_TYPE_LABELS } from "@/lib/compliance-status";
 import { formatMissingSpecial } from "@/lib/special-requirement-labels";
 import { autoAcceptPendingInvites } from "./agency/actions";
 import DashboardHeader from "./dashboard-header";
+import { HoursBar, StatusBadge, StatusBar, btnPrimary, btnSecondary, type Tone } from "@/components/ui";
 
 type License = {
   id: string;
@@ -19,12 +20,22 @@ type License = {
   sells_flood: boolean;
 };
 
-const STATUS_LABEL: Record<ComplianceStatus, { label: string; color: string }> = {
-  compliant: { label: "Compliant", color: "var(--green)" },
-  needs_hours: { label: "Needs hours", color: "var(--amber)" },
-  at_risk: { label: "At risk", color: "var(--red)" },
-  expired: { label: "Expired", color: "var(--red)" },
+const STATUS_LABEL: Record<ComplianceStatus, { label: string; tone: Tone }> = {
+  compliant: { label: "Compliant", tone: "green" },
+  needs_hours: { label: "Needs hours", tone: "amber" },
+  at_risk: { label: "At risk", tone: "red" },
+  expired: { label: "Expired", tone: "red" },
 };
+
+const URGENCY_TONE: Record<string, Tone> = {
+  active: "green",
+  expiring_soon: "amber",
+  expired: "red",
+};
+
+function daysText(days: number): string {
+  return days >= 0 ? `Expires in ${days} days` : `Expired ${Math.abs(days)} days ago`;
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -89,12 +100,46 @@ export default async function DashboardPage() {
 
   const items = complianceItems ?? [];
 
+  // Pregled za vrh dashboarda: koliko licenci je u redu, koliko traži
+  // paznju, i koji je sledeci rok (licence + E&O/appointment stavke).
+  const counts = { good: 0, attention: 0, expired: 0, unknown: 0 };
+  for (const { result } of withStatus) {
+    if (!result) counts.unknown++;
+    else if (result.status === "compliant") counts.good++;
+    else if (result.status === "expired") counts.expired++;
+    else counts.attention++;
+  }
+
+  const deadlines: { label: string; days: number }[] = [
+    ...withStatus
+      .filter(({ result }) => result && result.daysUntilExpiration >= 0)
+      .map(({ license, result }) => ({
+        label: `${license.state_code} ${license.license_type}`,
+        days: result!.daysUntilExpiration,
+      })),
+    ...items
+      .map((item) => ({
+        label: item.label,
+        days: getItemUrgency(item.expiration_date).daysUntilExpiration,
+      }))
+      .filter((d) => d.days >= 0),
+  ].sort((a, b) => a.days - b.days);
+  const nextDeadline = deadlines[0];
+
+  const needsAttention = counts.attention + counts.expired;
+  const headline =
+    needsAttention === 0
+      ? "All licenses are in good standing"
+      : `${needsAttention} of ${rows.length} license${rows.length === 1 ? "" : "s"} need${
+          needsAttention === 1 ? "s" : ""
+        } attention`;
+
   return (
     <main className="min-h-screen bg-(--paper)">
       <DashboardHeader email={user.email} />
 
       <div className="max-w-270 mx-auto px-7 py-10">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="font-serif-brand text-[28px] font-semibold">
               Your licenses
@@ -107,82 +152,104 @@ export default async function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             {rows.length > 0 && (
-              <a
-                href="/api/export/my"
-                className="rounded-md border border-(--line) px-4 py-2.5 text-[14px] font-medium hover:border-(--ink) transition-colors whitespace-nowrap"
-              >
+              <a href="/api/export/my" className={btnSecondary}>
                 Export CSV
               </a>
             )}
-            <Link
-              href="/dashboard/new"
-              className="rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-            >
+            <Link href="/dashboard/new" className={btnPrimary}>
               + Add license
             </Link>
           </div>
         </div>
 
+        {rows.length > 0 && (
+          <section
+            aria-label="Compliance summary"
+            className="bg-(--card) border border-(--line) rounded-xl p-6 mb-6"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-4">
+              <h2 className="font-serif-brand text-[20px] font-semibold">{headline}</h2>
+              {nextDeadline && (
+                <p className="text-[13.5px] text-(--muted)">
+                  Next deadline: <span className="text-(--ink) font-medium">{nextDeadline.label}</span> in{" "}
+                  {nextDeadline.days} day{nextDeadline.days === 1 ? "" : "s"}
+                </p>
+              )}
+            </div>
+            <StatusBar
+              segments={[
+                { tone: "green", label: "compliant", count: counts.good },
+                { tone: "amber", label: "need attention", count: counts.attention },
+                { tone: "red", label: "expired", count: counts.expired },
+                { tone: "muted", label: "no rules on file", count: counts.unknown },
+              ]}
+            />
+          </section>
+        )}
+
         {rows.length === 0 ? (
-          <div className="bg-(--card) border border-(--line) rounded-[10px] p-12 text-center">
+          <div className="bg-(--card) border border-(--line) rounded-xl p-12 text-center">
             <p className="text-(--muted) text-[15px]">
               You haven&apos;t added any licenses yet.
             </p>
-            <Link
-              href="/dashboard/new"
-              className="inline-block mt-4 rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity"
-            >
+            <Link href="/dashboard/new" className={`${btnPrimary} mt-4`}>
               Add your first license
             </Link>
           </div>
         ) : (
-          <div className="bg-(--card) border border-(--line) rounded-[10px] overflow-hidden">
+          <div className="bg-(--card) border border-(--line) rounded-xl overflow-hidden">
             {withStatus.map(({ license, result }, i) => {
               const status = result ? STATUS_LABEL[result.status] : null;
               return (
                 <Link
                   key={license.id}
                   href={`/dashboard/${license.id}`}
-                  className={`flex items-center justify-between px-4.5 py-3.5 hover:bg-(--paper2) transition-colors ${
+                  className={`block px-5 py-4 hover:bg-(--paper2) transition-colors ${
                     i > 0 ? "border-t border-(--line)" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="w-2 h-2 rounded-full flex-none"
-                      style={{ background: status?.color ?? "var(--muted)" }}
-                    />
-                    <span className="font-semibold text-[14.5px]">
-                      {license.state_code} · {license.license_type}
-                    </span>
-                    <span className="text-[12.5px] text-(--muted)">
-                      {status?.label ?? "No rules on file"}
-                    </span>
-                    {result && (
-                      <span className="text-[12.5px] text-(--muted)">
-                        · {result.generalHoursCompleted}/
-                        {result.generalHoursRequired}h general,{" "}
-                        {result.ethicsHoursCompleted}/{result.ethicsHoursRequired}
-                        h ethics
-                        {result.missingSpecial.length > 0 &&
-                          ` · missing ${formatMissingSpecial(result.missingSpecial)}`}
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                      <span className="font-semibold text-[15px]">
+                        {license.state_code} · {license.license_type}
                       </span>
-                    )}
+                      <StatusBadge tone={status?.tone ?? "muted"}>
+                        {status?.label ?? "No rules on file"}
+                      </StatusBadge>
+                    </div>
+                    <div className="text-[13px] text-(--muted) whitespace-nowrap">
+                      {result
+                        ? daysText(result.daysUntilExpiration)
+                        : new Date(license.expiration_date).toLocaleDateString()}
+                    </div>
                   </div>
-                  <div className="text-[13px] text-(--muted) text-right whitespace-nowrap">
-                    {result
-                      ? result.daysUntilExpiration >= 0
-                        ? `Expires in ${result.daysUntilExpiration} days`
-                        : `Expired ${Math.abs(result.daysUntilExpiration)} days ago`
-                      : new Date(license.expiration_date).toLocaleDateString()}
-                  </div>
+
+                  {result && (
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 max-w-xl">
+                      <HoursBar
+                        label="General"
+                        done={result.generalHoursCompleted}
+                        required={result.generalHoursRequired}
+                      />
+                      <HoursBar
+                        label="Ethics"
+                        done={result.ethicsHoursCompleted}
+                        required={result.ethicsHoursRequired}
+                      />
+                    </div>
+                  )}
+                  {result && result.missingSpecial.length > 0 && (
+                    <p className="mt-2.5 text-[12.5px] text-(--red)">
+                      Missing {formatMissingSpecial(result.missingSpecial)}
+                    </p>
+                  )}
                 </Link>
               );
             })}
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-8 mt-14">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 mt-14">
           <div>
             <h2 className="font-serif-brand text-[22px] font-semibold">
               E&O insurance & carrier appointments
@@ -193,55 +260,44 @@ export default async function DashboardPage() {
                 : `Tracking ${items.length} item${items.length === 1 ? "" : "s"}.`}
             </p>
           </div>
-          <Link
-            href="/dashboard/compliance/new"
-            className="rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-          >
+          <Link href="/dashboard/compliance/new" className={btnPrimary}>
             + Add item
           </Link>
         </div>
 
         {items.length === 0 ? (
-          <div className="bg-(--card) border border-(--line) rounded-[10px] p-12 text-center">
+          <div className="bg-(--card) border border-(--line) rounded-xl p-12 text-center">
             <p className="text-(--muted) text-[15px]">
               No E&O policies or carrier appointments tracked yet.
             </p>
-            <Link
-              href="/dashboard/compliance/new"
-              className="inline-block mt-4 rounded-md bg-(--ink) text-(--paper) px-4 py-2.5 text-[14px] font-medium hover:opacity-90 transition-opacity"
-            >
+            <Link href="/dashboard/compliance/new" className={`${btnPrimary} mt-4`}>
               Add your first item
             </Link>
           </div>
         ) : (
-          <div className="bg-(--card) border border-(--line) rounded-[10px] overflow-hidden">
+          <div className="bg-(--card) border border-(--line) rounded-xl overflow-hidden">
             {items.map((item, i) => {
               const urgency = getItemUrgency(item.expiration_date);
               return (
                 <Link
                   key={item.id}
                   href={`/dashboard/compliance/${item.id}`}
-                  className={`flex items-center justify-between px-4.5 py-3.5 hover:bg-(--paper2) transition-colors ${
+                  className={`flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-4 hover:bg-(--paper2) transition-colors ${
                     i > 0 ? "border-t border-(--line)" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="w-2 h-2 rounded-full flex-none"
-                      style={{ background: urgency.color }}
-                    />
-                    <span className="font-semibold text-[14.5px]">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                    <span className="font-semibold text-[15px]">
                       {ITEM_TYPE_LABELS[item.item_type] ?? item.item_type}
                       {item.state_code ? ` · ${item.state_code}` : ""}
                     </span>
-                    <span className="text-[12.5px] text-(--muted)">
-                      {item.label}
-                    </span>
+                    <span className="text-[13px] text-(--muted)">{item.label}</span>
+                    <StatusBadge tone={URGENCY_TONE[urgency.urgency] ?? "muted"}>
+                      {urgency.label}
+                    </StatusBadge>
                   </div>
-                  <div className="text-[13px] text-(--muted) text-right whitespace-nowrap">
-                    {urgency.daysUntilExpiration >= 0
-                      ? `Expires in ${urgency.daysUntilExpiration} days`
-                      : `Expired ${Math.abs(urgency.daysUntilExpiration)} days ago`}
+                  <div className="text-[13px] text-(--muted) whitespace-nowrap">
+                    {daysText(urgency.daysUntilExpiration)}
                   </div>
                 </Link>
               );

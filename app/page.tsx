@@ -1,6 +1,7 @@
 // app/page.tsx
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { HoursBar, StatusBadge, btnPrimary, btnSecondary, type Tone } from "@/components/ui";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -43,7 +44,7 @@ export default async function HomePage() {
             </Link>
             <Link
               href={user ? "/dashboard" : "/login"}
-              className="bg-(--ink) text-(--paper) px-4.5 py-2.5 rounded-md text-sm font-medium whitespace-nowrap hover:opacity-90 transition-opacity"
+              className={btnPrimary}
             >
               {user ? "Go to dashboard" : "Get started"}
             </Link>
@@ -52,10 +53,10 @@ export default async function HomePage() {
       </header>
 
       <div className="max-w-270 mx-auto px-7">
-        <div className="hero-rise py-13 lg:py-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-14 items-start">
+        <div className="hero-rise py-14 lg:py-20 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-14 items-start">
           <div>
-            <div className="text-[13px] text-(--amber) font-semibold mb-3.5 tracking-wide">
-              FOR INSURANCE AGENTS AND AGENCIES
+            <div className="text-sm text-(--amber-ink) font-medium mb-3.5">
+              For insurance agents and agencies
             </div>
             <h1 className="font-serif-brand text-[34px] sm:text-[40px] lg:text-[46px] leading-[1.1] max-w-lg">
               Your license doesn&apos;t lapse overnight. It lapses when you
@@ -67,10 +68,7 @@ export default async function HomePage() {
               might not even reach you.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href={user ? "/dashboard" : "/login"}
-                className="bg-(--ink) text-(--paper) px-4.5 py-2.5 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
-              >
+              <Link href={user ? "/dashboard" : "/login"} className={btnPrimary}>
                 {user ? "Go to dashboard" : "Start free"}
               </Link>
               <span className="text-[13px] text-(--muted)">
@@ -80,46 +78,43 @@ export default async function HomePage() {
           </div>
 
           <div className="bg-(--card) border border-(--line) rounded-xl overflow-hidden shadow-[0_24px_48px_-24px_rgba(22,35,46,0.18)]">
-            <div className="px-4.5 py-4 border-b border-(--line) flex justify-between items-center">
-              <span className="text-xs text-(--muted) font-medium">
-                YOUR LICENSES
-              </span>
-              <span className="text-xs text-(--muted) font-medium">
-                4 states
-              </span>
+            <div className="px-5 py-4 border-b border-(--line) flex justify-between items-center">
+              <span className="text-sm font-semibold">Your licenses</span>
+              <span className="text-xs text-(--muted)">4 states</span>
             </div>
-            <div className="px-4.5 py-3 border-b border-(--line) bg-(--paper2) flex items-center gap-2.5 text-[13px] font-semibold">
-              <span
-                className="w-2 h-2 rounded-full flex-none"
-                style={{ background: "var(--red)" }}
-              />
+            <div className="px-5 py-3 border-b border-(--line) bg-(--red-soft) flex items-center gap-2.5 text-[13px] font-semibold text-(--red)">
+              <span className="w-2 h-2 rounded-full flex-none bg-(--red)" />
               1 compliance issue, 1 item needs attention
             </div>
-            {[
-              { dot: "var(--green)", state: "California", sub: "P&C", days: "312 days", urgent: false },
-              { dot: "var(--amber)", state: "Texas", sub: "Life", days: "41 days · 6h CE short", urgent: true },
-              { dot: "var(--red)", state: "Florida", sub: "P&C", days: "expired 3 days ago", urgent: true },
-              { dot: "var(--green)", state: "New York", sub: "Life", days: "198 days", urgent: false },
-            ].map((row, i) => (
+            {([
+              { state: "California", sub: "P&C", tone: "green", label: "Compliant", days: "312 days" },
+              { state: "Texas", sub: "Life", tone: "amber", label: "Needs hours", days: "41 days", bar: { done: 18, required: 24 } },
+              { state: "Florida", sub: "P&C", tone: "red", label: "Expired", days: "3 days ago" },
+              { state: "New York", sub: "Life", tone: "green", label: "Compliant", days: "198 days" },
+            ] as { state: string; sub: string; tone: Tone; label: string; days: string; bar?: { done: number; required: number } }[]).map((row, i) => (
               <div
                 key={row.state}
-                className={`flex items-center justify-between px-4.5 py-3.5 ${
-                  i > 0 ? "border-t border-(--line)" : ""
-                } ${row.urgent ? "bg-[#FBF3EE]" : ""}`}
+                className={`px-5 py-3.5 ${i > 0 ? "border-t border-(--line)" : ""}`}
               >
-                <span className="flex items-center gap-2.5 font-semibold text-[14.5px]">
-                  <span
-                    className="w-2 h-2 rounded-full flex-none"
-                    style={{ background: row.dot }}
-                  />
-                  {row.state}
-                  <span className="text-[12.5px] text-(--muted) font-normal ml-0.5">
-                    {row.sub}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex flex-wrap items-center gap-x-3 gap-y-1 font-semibold text-[14.5px]">
+                    <span>
+                      {row.state}
+                      <span className="text-[12.5px] text-(--muted) font-normal ml-1.5">
+                        {row.sub}
+                      </span>
+                    </span>
+                    <StatusBadge tone={row.tone}>{row.label}</StatusBadge>
                   </span>
-                </span>
-                <span className="text-[13px] text-(--muted) text-right whitespace-nowrap">
-                  {row.days}
-                </span>
+                  <span className="text-[13px] text-(--muted) text-right whitespace-nowrap">
+                    {row.days}
+                  </span>
+                </div>
+                {row.bar && (
+                  <div className="mt-3 max-w-xs">
+                    <HoursBar label="General" done={row.bar.done} required={row.bar.required} />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -131,7 +126,7 @@ export default async function HomePage() {
           <div className="font-serif-brand text-[40px] sm:text-[52px] text-(--red) leading-none">
             0
             <small className="block font-sans text-[12.5px] text-(--muted) font-medium mt-1.5">
-              GRACE PERIOD
+              grace period
             </small>
           </div>
           <p className="text-[16.5px] max-w-xl m-0">
@@ -389,11 +384,7 @@ export default async function HomePage() {
                 </ul>
                 <Link
                   href={user ? "/dashboard" : "/login"}
-                  className={`self-start inline-block px-4.5 py-2.5 rounded-md text-sm font-medium transition-opacity hover:opacity-90 ${
-                    plan.featured
-                      ? "bg-(--ink) text-(--paper)"
-                      : "bg-transparent text-(--ink) border border-(--line)"
-                  }`}
+                  className={`self-start ${plan.featured ? btnPrimary : btnSecondary}`}
                 >
                   {user ? "Go to dashboard" : "Choose"}
                 </Link>
