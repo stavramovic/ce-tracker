@@ -50,13 +50,7 @@ export function calculateCompliance(
     (expiration.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  // Florida-tip logika: broj potrebnih sati zavisi od toga koliko dugo je agent licenciran
-  let requiredHours = rule.ce_hours_required;
-  const threshold = rule.special_requirements?.years_licensed_threshold;
-  const reducedHours = rule.special_requirements?.hours_after_threshold;
-  if (threshold && reducedHours && (license.years_licensed ?? 0) >= threshold) {
-    requiredHours = reducedHours;
-  }
+  const requiredHours = requiredHoursFor(rule, license.years_licensed);
 
   const generalHoursCompleted = sumHours(credits, (c) => c.category !== "ethics");
   const ethicsHoursCompleted = sumHours(credits, (c) => c.category === "ethics");
@@ -65,7 +59,9 @@ export function calculateCompliance(
   const missingSpecial: string[] = [];
   const special = rule.special_requirements ?? {};
 
-  if (license.sells_flood && special.flood_hours) {
+  // flood_required_all: država traži flood od SVIH P&C agenata (NY, LA, PA),
+  // ne samo od onih koji prodaju flood
+  if ((license.sells_flood || special.flood_required_all) && special.flood_hours) {
     const floodDone = sumHours(credits, (c) => c.category === "flood");
     if (floodDone < special.flood_hours) missingSpecial.push("flood");
   }
@@ -102,6 +98,28 @@ export function calculateCompliance(
     ethicsHoursRequired: rule.ethics_hours_required,
     missingSpecial,
   };
+}
+
+// Ukupno potrebnih sati za ovaj ciklus, zavisno od staža agenta:
+// - Florida-tip: posle N godina licence traži se manje sati
+// - Massachusetts-tip: prvi ciklus traži više sati od narednih. Prvi ciklus
+//   je kraći od pune dužine ciklusa, pa "manje godina nego što ciklus traje"
+//   znači da je agent još u prvom. Bez unetog staža računamo redovan ciklus.
+function requiredHoursFor(rule: StateRule, yearsLicensed: number | null | undefined): number {
+  const special = rule.special_requirements ?? {};
+  const threshold = special.years_licensed_threshold;
+  const reducedHours = special.hours_after_threshold;
+  if (threshold && reducedHours && (yearsLicensed ?? 0) >= threshold) {
+    return reducedHours;
+  }
+  if (
+    special.first_term_hours &&
+    yearsLicensed != null &&
+    yearsLicensed < rule.renewal_cycle_months / 12
+  ) {
+    return special.first_term_hours;
+  }
+  return rule.ce_hours_required;
 }
 
 function sumHours(credits: CeCredit[], filter: (c: CeCredit) => boolean): number {
@@ -142,12 +160,7 @@ export function calculateHoursGap(
 ): HoursGapResult {
   const special = rule.special_requirements ?? {};
 
-  let requiredHours = rule.ce_hours_required;
-  const threshold = special.years_licensed_threshold;
-  const reducedHours = special.hours_after_threshold;
-  if (threshold && reducedHours && (input.yearsLicensed ?? 0) >= threshold) {
-    requiredHours = reducedHours;
-  }
+  const requiredHours = requiredHoursFor(rule, input.yearsLicensed);
 
   const ethicsRequired = rule.ethics_hours_required;
   const generalRequired = requiredHours - ethicsRequired;
@@ -157,7 +170,7 @@ export function calculateHoursGap(
 
   const missingSpecial: HoursGapResult["missingSpecial"] = [];
 
-  if (input.sellsFlood && special.flood_hours) {
+  if ((input.sellsFlood || special.flood_required_all) && special.flood_hours) {
     const done = input.floodHoursCompleted ?? 0;
     const remaining = Math.max(0, special.flood_hours - done);
     if (remaining > 0) {

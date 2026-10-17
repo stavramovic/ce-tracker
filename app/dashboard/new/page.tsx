@@ -141,7 +141,8 @@ export default async function NewLicensePage() {
               />
               <p className="mt-1 text-[12px] text-(--muted)">
                 Some states reduce required hours after a threshold (e.g.
-                Florida, Georgia).
+                Florida, Georgia), and Massachusetts requires more hours in
+                your first renewal.
               </p>
             </div>
 

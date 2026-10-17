@@ -11,7 +11,8 @@ export default function StateCalculator({ rule }: { rule: StateRule }) {
   const [general, setGeneral] = useState("");
   const [ethics, setEthics] = useState("");
   const [yearsLicensed, setYearsLicensed] = useState("");
-  const [sellsFlood, setSellsFlood] = useState(false);
+  const floodRequired = Boolean(special.flood_required_all);
+  const [sellsFlood, setSellsFlood] = useState(floodRequired);
   const [sellsAnnuity, setSellsAnnuity] = useState(false);
   const [sellsLtc, setSellsLtc] = useState(false);
   const [floodHours, setFloodHours] = useState("");
@@ -75,7 +76,7 @@ export default function StateCalculator({ rule }: { rule: StateRule }) {
         </div>
       </div>
 
-      {special.years_licensed_threshold ? (
+      {special.years_licensed_threshold || special.first_term_hours ? (
         <div className="mt-4">
           <label className="block text-[13px] font-medium mb-1.5">
             Years licensed (optional)
@@ -85,7 +86,11 @@ export default function StateCalculator({ rule }: { rule: StateRule }) {
             min="0"
             value={yearsLicensed}
             onChange={(e) => setYearsLicensed(e.target.value)}
-            placeholder={`${special.years_licensed_threshold}+ years reduces your requirement`}
+            placeholder={
+              special.years_licensed_threshold
+                ? `${special.years_licensed_threshold}+ years reduces your requirement`
+                : `First renewal requires ${special.first_term_hours} hours`
+            }
             className="w-full rounded-md border border-(--line) px-3.5 py-2.5 text-[14.5px] outline-none focus:border-(--ink) transition-colors bg-(--card)"
           />
         </div>
@@ -103,9 +108,10 @@ export default function StateCalculator({ rule }: { rule: StateRule }) {
                   <input
                     type="checkbox"
                     checked={sellsFlood}
+                    disabled={floodRequired}
                     onChange={(e) => setSellsFlood(e.target.checked)}
                   />
-                  Flood insurance
+                  {floodRequired ? "Flood (required)" : "Flood insurance"}
                 </label>
                 {sellsFlood && (
                   <input
