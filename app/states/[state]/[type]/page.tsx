@@ -162,9 +162,11 @@ export default async function StateTypePage({ params }: Props) {
             "not on file"
           )}
           {rule.last_verified_at
-            ? `, last verified ${new Date(rule.last_verified_at).toLocaleDateString()}`
-            : ", verify with your state's Department of Insurance before relying on this for renewal."}
-          . This page is informational and not legal advice.
+            ? `, last checked ${new Date(rule.last_verified_at).toLocaleDateString()}`
+            : ""}
+          . Rules change; always verify with your state&apos;s Department of
+          Insurance before relying on this for renewal. This page is
+          informational and not legal advice.
         </p>
       </div>
     </main>
